@@ -45,19 +45,26 @@
                                 <i class="fas fa-eye"></i>
                             </a>
                             @php
-                                $pengguna = session('pengguna');
+                            $pengguna = session('pengguna');
                             @endphp
-                            @if($pengguna && ($pengguna->role === 'admin' || $pengguna->id === $artikel->id_pengguna))
-                            <a href="{{ route('dashboard.artikel.edit', $artikel->id) }}" class="btn-sm btn-warning">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="{{ route('dashboard.artikel.delete', $artikel->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus artikel ini?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+
+                            @if($pengguna && (
+                                ($pengguna['role'] ?? null) === 'admin' ||
+                                ($pengguna['id'] ?? null) === $artikel->id_pengguna
+                            ))
+                                <a href="{{ route('dashboard.artikel.edit', $artikel->id) }}" class="btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <form action="{{ route('dashboard.artikel.delete', $artikel->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit" class="btn-sm btn-danger"
+                                            onclick="return confirm('Yakin ingin menghapus artikel ini?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             @endif
                         </td>
                     </tr>

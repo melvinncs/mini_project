@@ -6,14 +6,13 @@
     <title>@yield('title', 'K-DramaHub - Portal Informasi Drama Korea')</title>
     <meta name="description" content="Portal informasi drama Korea terlengkap. Temukan drama terbaru, populer, detail pemeran, genre, rating, dan episode.">
     <link rel="icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
-    @vite(['resources/css/style.css'])
+    @vite(['resources/css/style.css','resources/css/dashboard.css', 'resources/js/app.js'])
 
-    <!-- Font Awesome untuk ikon sosial -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- ===== NAVBAR ===== -->
+    <!-- NAVBAR -->
     <nav class="navbar" id="navbar">
         <a href="{{ route('home') }}" class="navbar-brand">
             <div class="brand-icon">KD</div>
@@ -21,9 +20,20 @@
         </a>
 
         <ul class="navbar-links" id="navLinks">
-            <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a></li>
-            <li><a href="{{ route('drama') }}" class="{{ request()->routeIs('drama') ? 'active' : '' }}">Drama</a></li>
-            <li><a href="{{ route('artikel') }}" class="{{ request()->routeIs('artikel') ? 'active' : '' }}">Artikel</a></li>
+            @php
+                $isHomePage = request()->routeIs('home');
+                $currentRoute = request()->route()->getName();
+            @endphp
+
+            @if($isHomePage)
+                <li><a href="#home" class="nav-link active" data-target="home">Home</a></li>
+                <li><a href="#drama" class="nav-link" data-target="drama">Drama</a></li>
+                <li><a href="#artikel" class="nav-link" data-target="artikel">Artikel</a></li>
+            @else
+                <li><a href="{{ route('home') }}#home" class="{{ $currentRoute == 'home' ? 'active' : '' }}">Home</a></li>
+                <li><a href="{{ route('drama') }}" class="{{ $currentRoute == 'drama' ? 'active' : '' }}">Drama</a></li>
+                <li><a href="{{ route('artikel') }}" class="{{ $currentRoute == 'artikel' ? 'active' : '' }}">Artikel</a></li>
+            @endif
         </ul>
 
         <div class="navbar-actions">
@@ -38,17 +48,17 @@
         </div>
 
         <div class="navbar-actions-mobile">
-            <a href="#" class="btn-login-mobile">Masuk</a>
-            <a href="#" class="btn-register-mobile">Daftar</a>
+            <a href="{{ route('login') }}" class="btn-login-mobile">Masuk</a>
+            <a href="{{ route('register') }}" class="btn-register-mobile">Daftar</a>
         </div>
     </nav>
 
-    <!-- ===== CONTENT ===== -->
+    <!-- CONTENT -->
     <main>
         @yield('content')
     </main>
 
-    <!-- ===== FOOTER ===== -->
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-inner">
             <div class="footer-brand">
@@ -114,43 +124,5 @@
         </div>
     </footer>
 
-    <!-- ===== SCRIPTS ===== -->
-    <script>
-        // Navbar scroll effect
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Mobile menu toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const navLinks = document.getElementById('navLinks');
-
-        menuToggle.addEventListener('click', () => {
-            menuToggle.classList.toggle('active');
-            navLinks.classList.toggle('open');
-        });
-
-        // Close mobile menu on link click
-        document.querySelectorAll('.navbar-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                menuToggle.classList.remove('active');
-                navLinks.classList.remove('open');
-            });
-        });
-
-        // Highlight active nav link based on current page
-        document.querySelectorAll('.navbar-links a').forEach(link => {
-            if (link.href === window.location.href) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
-        });
-    </script>
 </body>
 </html>

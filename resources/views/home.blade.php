@@ -182,8 +182,8 @@
 
         <!-- Filter Artikel -->
         <div class="filter-wrapper">
-            <input type="text" placeholder="Cari artikel..." class="filter-input">
-            <select class="filter-select">
+            <input type="text" placeholder="Cari artikel..." class="filter-input" id="searchArtikel">
+            <select class="filter-select" id="kategoriFilter">
                 <option value="">Semua Kategori</option>
                 <option value="Review">Review</option>
                 <option value="Rekomendasi">Rekomendasi</option>
@@ -193,54 +193,237 @@
                 <option value="Preview">Preview</option>
                 <option value="Berita">Berita</option>
             </select>
-            <button class="filter-btn">🔍 Cari</button>
+            <button class="filter-btn" id="filterArtikelBtn">🔍 Cari</button>
         </div>
 
-        <div class="article-grid">
-            @php
-                $artikels = [
-                    [
-                        'title' => 'Review Queen of Tears: Drama yang Bikin Baper Sepanjang Episode',
-                        'excerpt' => 'Queen of Tears berhasil mencuri perhatian dengan alur cerita yang emosional dan akting memukau dari para pemainnya.',
-                        'category' => 'Review',
-                        'author' => 'Kim Min-ji',
-                        'date' => '15 Mei 2024',
-                        'thumb' => 'review-queen-of-tears.jpg',
-                        'avatar' => 'avatar-1.jpg'
-                    ],
-                    [
-                        'title' => 'Soundtrack Drama Korea Terbaik yang Bikin Galau',
-                        'excerpt' => 'Soundtrack adalah salah satu elemen penting dalam drama Korea. Simak daftar OST terbaik yang bikin hati terenyuh.',
-                        'category' => 'OST',
-                        'author' => 'Choi Yeon-ju',
-                        'date' => '5 Mei 2024',
-                        'thumb' => 'best-ost.jpg',
-                        'avatar' => 'avatar-5.jpg'
-                    ],
-                ];
-            @endphp
-
-            @foreach ($artikels as $artikel)
+        <div class="article-grid" id="articleGrid">
+            @forelse($artikels ?? [] as $artikel)
                 <div class="article-card">
-                    <img class="thumb" src="{{ asset('images/articles/' . $artikel['thumb']) }}" alt="{{ $artikel['title'] }}" loading="lazy">
+                    <img class="thumb" src="{{ asset($artikel->thumbnail ?? 'images/default-article.jpg') }}" 
+                        alt="{{ $artikel->judul }}" loading="lazy">
                     <div class="info">
-                        <span class="category">{{ $artikel['category'] }}</span>
-                        <h3>{{ $artikel['title'] }}</h3>
-                        <p>{{ $artikel['excerpt'] }}</p>
+                        <span class="category">{{ $artikel->kategori ?? 'Artikel' }}</span>
+                        <h3>{{ $artikel->judul }}</h3>
+                        <p>{{ Str::limit(strip_tags($artikel->isi), 120) }}</p>
                         <div class="author">
-                            <img src="{{ asset('images/authors/' . $artikel['avatar']) }}" alt="{{ $artikel['author'] }}" loading="lazy">
+                            <img src="{{ asset('images/authors/default-avatar.jpg') }}" 
+                                alt="{{ $artikel->pengguna->nama ?? 'Penulis' }}" loading="lazy">
                             <div>
-                                <div class="name">{{ $artikel['author'] }}</div>
-                                <div class="date">{{ $artikel['date'] }}</div>
+                                <div class="name">{{ $artikel->pengguna->nama ?? 'Admin' }}</div>
+                                <div class="date">{{ $artikel->diterbitkan_pada ? $artikel->diterbitkan_pada->format('d M Y') : 'Belum dipublikasi' }}</div>
                             </div>
                         </div>
+                        <a href="{{ route('artikel.detail', $artikel->slug) }}" class="read-more">Baca Selengkapnya →</a>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="no-articles">
+                    <p>Belum ada artikel. Silakan buat artikel di dashboard.</p>
+                </div>
+            @endforelse
         </div>
 
         <div class="section-footer">
             <a href="{{ route('artikel') }}" class="btn-primary">Baca Semua Artikel →</a>
         </div>
     </section>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetchDramas();
+});
+
+async function fetchDramas() {
+    const searchInput = document.querySelector('.filter-input');
+    const yearSelect = document.querySelector('.filter-select:last-child');
+    const genreSelect = document.querySelector('.filter-select:nth-child(2)');
+    const searchBtn = document.querySelector('.filter-btn');
+    const dramaGrid = document.querySelector('.drama-grid');
+    
+    // Show loading state
+    if (dramaGrid) {
+        dramaGrid.innerHTML = '<div class="loading">Loading dramas...</div>';
+    }
+    
+    async function loadDramas() {
+        try {
+            const query = searchInput ? searchInput.value.trim() || 'korean drama' : 'korean drama';
+            const year = yearSelect ? yearSelect.value || '2026' : '2026';
+            
+            const response = await fetch(`/api/dramas?q=${encodeURIComponent(query)}&year=${year}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.message || 'Failed to fetch dramas');
+            }
+            
+            renderDramas(data.data);
+            
+            // Update total count
+            const totalElement = document.querySelector('.total-dramas');
+            if (totalElement) {
+                totalElement.textContent = `Total: ${data.total} dramas`;
+            }
+            
+        } catch (error) {
+            console.error('Error fetching dramas:', error);
+            if (dramaGrid) {
+                dramaGrid.innerHTML = `
+                    <div class="error-message">
+                        <p>Failed to load dramas: ${error.message}</p>
+                        <button onclick="fetchDramas()" class="btn-primary">Retry</button>
+                    </div>
+                `;
+            }
+        }
+    }
+    
+    function renderDramas(dramas) {
+        if (!dramaGrid) return;
+        
+        if (dramas.length === 0) {
+            dramaGrid.innerHTML = '<div class="no-results">No dramas found for the selected criteria.</div>';
+            return;
+        }
+        
+        let html = '';
+        dramas.forEach(drama => {
+            const genres = drama.genres || [];
+            const rating = drama.rating ? drama.rating.toFixed(1) : 'N/A';
+            const poster = drama.poster || '/images/placeholder.jpg';
+            
+            html += `
+                <div class="drama-card">
+                    <img class="poster" src="${poster}" alt="${drama.title}" loading="lazy" 
+                         onerror="this.src='/images/placeholder.jpg'">
+                    ${drama.status === 'Ended' ? '<span class="badge-top badge-ended">Selesai</span>' : ''}
+                    <div class="info">
+                        <h3>${drama.title}</h3>
+                        <div class="meta">
+                            <span>${drama.year || 'N/A'}</span>
+                            <span>•</span>
+                            <span class="rating">⭐ ${rating}</span>
+                            <span>•</span>
+                            <span>${drama.episodes || 0} Episode</span>
+                        </div>
+                        <div class="genres">
+                            ${genres.map(g => `<span>${g}</span>`).join('')}
+                        </div>
+                        <p class="sinopsis">${drama.summary || 'No synopsis available'}</p>
+                        <div class="pemeran">
+                            ${drama.cast && drama.cast.length > 0 
+                                ? drama.cast.slice(0, 3).map(actor => 
+                                    `<span>${actor.name}${actor.character ? ` as ${actor.character}` : ''}</span>`
+                                  ).join('')
+                                : '<span>Cast information not available</span>'
+                            }
+                        </div>
+                        <div class="episode-info">
+                            <span>📺 ${drama.episodes || 0} Episode</span>
+                            <span>⭐ ${rating}/10</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        dramaGrid.innerHTML = html;
+    }
+    
+    // Load initial dramas
+    await loadDramas();
+    
+    // Add event listeners
+    if (searchBtn) {
+        searchBtn.addEventListener('click', loadDramas);
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadDramas();
+            }
+        });
+    }
+    
+    if (yearSelect) {
+        yearSelect.addEventListener('change', loadDramas);
+    }
+}
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter Artikel
+    const searchInput = document.getElementById('searchArtikel');
+    const kategoriFilter = document.getElementById('kategoriFilter');
+    const filterBtn = document.getElementById('filterArtikelBtn');
+    const articleGrid = document.getElementById('articleGrid');
+    
+    function filterArticles() {
+        const keyword = searchInput.value.toLowerCase();
+        const kategori = kategoriFilter.value;
+        
+        const cards = articleGrid.querySelectorAll('.article-card');
+        let hasResults = false;
+        
+        cards.forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const desc = card.querySelector('p').textContent.toLowerCase();
+            const category = card.querySelector('.category').textContent.toLowerCase();
+            
+            let show = true;
+            
+            if (keyword && !title.includes(keyword) && !desc.includes(keyword)) {
+                show = false;
+            }
+            
+            if (kategori && category !== kategori.toLowerCase()) {
+                show = false;
+            }
+            
+            card.style.display = show ? 'block' : 'none';
+            if (show) hasResults = true;
+        });
+        
+        // Show no results message
+        let noResult = articleGrid.querySelector('.no-result');
+        if (!hasResults) {
+            if (!noResult) {
+                noResult = document.createElement('div');
+                noResult.className = 'no-result';
+                noResult.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-gray);">Tidak ada artikel yang ditemukan.</p>';
+                articleGrid.appendChild(noResult);
+            }
+        } else if (noResult) {
+            noResult.remove();
+        }
+    }
+    
+    if (filterBtn) {
+        filterBtn.addEventListener('click', filterArticles);
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filterArticles();
+            }
+        });
+    }
+});
+</script>
 @endsection

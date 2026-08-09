@@ -25,8 +25,20 @@
                     <i class="fas fa-newspaper"></i>
                     <span>Artikel</span>
                 </a>
-                @if(isset($pengguna) && $pengguna->role === 'admin')
-                <a href="{{ route('dashboard.users') }}" class="sidebar-link {{ request()->routeIs('dashboard.users') ? 'active' : '' }}">
+                @php
+                    $pengguna = session('pengguna');
+                    // Helper untuk mendapatkan nilai dari array atau object
+                    $getPenggunaValue = function($key) use ($pengguna) {
+                        if (!$pengguna) return null;
+                        if (is_array($pengguna)) {
+                            return $pengguna[$key] ?? null;
+                        }
+                        return $pengguna->$key ?? null;
+                    };
+                    $isAdmin = $getPenggunaValue('role') === 'admin';
+                @endphp
+                @if($isAdmin)
+                <a href="{{ route('dashboard.users.index') }}" class="sidebar-link {{ request()->routeIs('dashboard.users.*') ? 'active' : '' }}">
                     <i class="fas fa-users-cog"></i>
                     <span>Manajemen User</span>
                 </a>
@@ -34,14 +46,13 @@
             </nav>
             
             <div class="sidebar-bottom">
-                <!-- <a href="{{ route('home') }}" class="sidebar-link">
-                    <i class="fas fa-home"></i>
-                    <span>Kembali ke Home</span>
-                </a> -->
                 <a href="{{ route('logout') }}" class="sidebar-link text-danger">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
+                <!-- <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form> -->
             </div>
         </aside>
 
@@ -56,9 +67,14 @@
                     <h2>@yield('title')</h2>
                 </div>
                 <div class="topbar-right">
+                    @php
+                        $pengguna = session('pengguna');
+                        $nama = $pengguna ? (is_array($pengguna) ? $pengguna['nama'] : $pengguna->nama) : 'User';
+                        $role = $pengguna ? (is_array($pengguna) ? $pengguna['role'] : $pengguna->role) : 'user';
+                    @endphp
                     <div class="user-info">
-                        <span>{{ isset($pengguna) ? $pengguna->nama : 'User' }}</span>
-                        <span class="badge-role">{{ isset($pengguna) ? $pengguna->role : 'user' }}</span>
+                        <span>{{ $nama }}</span>
+                        <span class="badge-role">{{ $role }}</span>
                     </div>
                 </div>
             </header>

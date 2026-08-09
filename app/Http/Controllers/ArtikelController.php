@@ -43,45 +43,32 @@ class ArtikelController extends Controller
 
     public function store(Request $request)
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-        
-        if (!$pengguna) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
-        }
-
         $request->validate([
             'judul' => 'required|string|max:255',
-            'isi' => 'required|string',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'kategori' => 'required|string|max:100',
+            'isi' => 'required',
+            'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $slug = Str::slug($request->judul);
-        $originalSlug = $slug;
-        $counter = 1;
-        
-        while (Artikel::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
-        }
+        $thumbnail = null;
 
-        $thumbnailPath = null;
         if ($request->hasFile('thumbnail')) {
-            $file = $request->file('thumbnail');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/thumbnails'), $filename);
-            $thumbnailPath = 'uploads/thumbnails/' . $filename;
+            $thumbnail = $request->file('thumbnail')->store('artikel', 'public');
         }
 
-        $artikel = Artikel::create([
-            'id_pengguna' => $pengguna->id,
+        Artikel::create([
             'judul' => $request->judul,
-            'slug' => $slug,
+            'slug' => Str::slug($request->judul),
+            'kategori' => $request->kategori,
             'isi' => $request->isi,
-            'thumbnail' => $thumbnailPath,
+            'thumbnail' => $thumbnail,
+            'id_pengguna' => $pengguna->id ?? session('pengguna_id'),
             'diterbitkan_pada' => now(),
         ]);
 
-        return redirect()->route('dashboard.artikel')->with('success', 'Artikel berhasil dibuat!');
+        return redirect()
+            ->route('dashboard.artikel')
+            ->with('success', 'Artikel berhasil dipublikasikan.');
     }
 
     public function edit($id)
@@ -180,16 +167,28 @@ class ArtikelController extends Controller
     public function show($slug)
     {
         $pengguna = Pengguna::find(session('pengguna_id'));
-    
+
         if (!$pengguna) {
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
         }
-        
+
         $artikel = Artikel::with('pengguna')->where('slug', $slug)->firstOrFail();
-        
+
+        if ($pengguna->role !== 'admin' && $artikel->id_pengguna !== $pengguna->id) {
+            return redirect()->route('dashboard.artikel')->with('error', 'Anda tidak memiliki akses untuk melihat artikel ini!');
+        }
+
         return view('dashboard.DetailArtikel', [
             'artikel' => $artikel,
             'pengguna' => $pengguna
         ]);
-        }
+    }
+
+    public function showPublic($slug)
+    {
+        $artikel = Artikel::with('pengguna')->where('slug', $slug)->firstOrFail();
+        $artikels = Artikel::with('pengguna')->latest()->take(3)->get();
+        
+        return view('artikel-detail', compact('artikel', 'artikels'));
+    }
 }

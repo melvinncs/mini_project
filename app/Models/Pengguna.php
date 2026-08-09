@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Pengguna extends Model
+class Pengguna extends Authenticatable
 {
+    use HasFactory;
+
     protected $table = 'pengguna';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'nama',
@@ -16,21 +20,23 @@ class Pengguna extends Model
         'role',
     ];
 
-    // pengguna memiliki banyak artikel
-    public function artikel(): HasMany
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    public function artikel()
     {
         return $this->hasMany(Artikel::class, 'id_pengguna');
     }
 
-    // pengguna memiliki banyak komentar
-    public function komentar(): HasMany
+    public function isAdmin()
     {
-        return $this->hasMany(Komentar::class, 'id_pengguna');
+        return $this->role === 'admin';
     }
 
-    // pengguna memiliki banyak favorit
-    public function favorit(): HasMany
+    public function isUser()
     {
-        return $this->hasMany(Favorit::class, 'id_pengguna');
+        return $this->role === 'user';
     }
 }

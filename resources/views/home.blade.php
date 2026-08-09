@@ -37,22 +37,6 @@
                 <div class="hero-image-wrapper">
                     <div class="circle-bg"></div>
                     <img src="{{ asset('image/home.png') }}" alt="K-DramaHub Hero" loading="lazy">
-
-                    <div class="floating-card">
-                        <span class="emoji">🔥</span>
-                        <div class="info">
-                            <h4>Queen of Tears</h4>
-                            <p>Rating 9.2 • 16 Episode</p>
-                        </div>
-                    </div>
-
-                    <div class="floating-card" style="top: 60%; right: -8%;">
-                        <span class="emoji">⭐</span>
-                        <div class="info">
-                            <h4>Lovely Runner</h4>
-                            <p>Romance • Fantasy</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -74,21 +58,19 @@
                 <option value="Romance">Romance</option>
                 <option value="Drama">Drama</option>
                 <option value="Thriller">Thriller</option>
-                <option value="Komedi">Komedi</option>
+                <option value="Comedy">Comedy</option>
                 <option value="Fantasy">Fantasy</option>
                 <option value="Action">Action</option>
-                <option value="Medis">Medis</option>
-                <option value="Survival">Survival</option>
             </select>
             <select class="filter-select">
                 <option value="">Semua Tahun</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
                 <option value="2024">2024</option>
                 <option value="2023">2023</option>
                 <option value="2022">2022</option>
                 <option value="2021">2021</option>
                 <option value="2020">2020</option>
-                <option value="2019">2019</option>
-                <option value="2018">2018</option>
             </select>
             <button class="filter-btn">🔍 Cari</button>
         </div>

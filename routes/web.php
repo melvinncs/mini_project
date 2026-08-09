@@ -8,10 +8,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\UserController;
 
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+// Route::get('/', function () {
+//     return view('home');
+// })->name('home');
 
 Route::get('/drama', function () {
     return view('drama');
@@ -36,7 +37,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // Route::delete('/dashboard/users/{id}', [DashboardController::class, 'deleteUser'])->name('dashboard.users.delete');
 
 // Artikel Routes
-Route::get('/artikel', [ArtikelController::class, 'publicIndex'])->name('artikel');
+// Route::get('/artikel', [ArtikelController::class, 'publicIndex'])->name('artikel');
 Route::get('/artikel/{slug}', [ArtikelController::class, 'showPublic'])->name('artikel.detail');
 Route::get('/dashboard/artikel', [ArtikelController::class, 'index'])->name('dashboard.artikel');
 Route::get('/dashboard/artikel/create', [ArtikelController::class, 'create'])->name('dashboard.artikel.create');

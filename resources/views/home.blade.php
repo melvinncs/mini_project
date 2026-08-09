@@ -199,15 +199,17 @@
         <div class="article-grid" id="articleGrid">
             @forelse($artikels ?? [] as $artikel)
                 <div class="article-card">
-                    <img class="thumb" src="{{ asset($artikel->thumbnail ?? 'images/default-article.jpg') }}" 
-                        alt="{{ $artikel->judul }}" loading="lazy">
+                    <img class="thumb"
+                        src="{{ $artikel->thumbnail ? asset($artikel->thumbnail) : asset('images/default-article.jpg') }}"
+                        alt="{{ $artikel->judul }}"
+                        loading="lazy">
                     <div class="info">
                         <span class="category">{{ $artikel->kategori ?? 'Artikel' }}</span>
                         <h3>{{ $artikel->judul }}</h3>
                         <p>{{ Str::limit(strip_tags($artikel->isi), 120) }}</p>
                         <div class="author">
-                            <img src="{{ asset('images/authors/default-avatar.jpg') }}" 
-                                alt="{{ $artikel->pengguna->nama ?? 'Penulis' }}" loading="lazy">
+                            <!-- <img src="{{ asset('images/authors/default-avatar.jpg') }}" 
+                                alt="{{ $artikel->pengguna->nama ?? 'Penulis' }}" loading="lazy"> -->
                             <div>
                                 <div class="name">{{ $artikel->pengguna->nama ?? 'Admin' }}</div>
                                 <div class="date">{{ $artikel->diterbitkan_pada ? $artikel->diterbitkan_pada->format('d M Y') : 'Belum dipublikasi' }}</div>
@@ -325,9 +327,9 @@ async function fetchDramas() {
                         <p class="sinopsis">${drama.summary || 'No synopsis available'}</p>
                         <div class="pemeran">
                             ${drama.cast && drama.cast.length > 0 
-                                ? drama.cast.slice(0, 3).map(actor => 
+                                    ? drama.cast.slice(0, 3).map(actor => 
                                     `<span>${actor.name}${actor.character ? ` as ${actor.character}` : ''}</span>`
-                                  ).join('')
+                                    ).join('')
                                 : '<span>Cast information not available</span>'
                             }
                         </div>

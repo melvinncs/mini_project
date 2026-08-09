@@ -20,6 +20,24 @@
             </div>
 
             <div class="form-group">
+                <label for="kategori">Kategori</label>
+                <select id="kategori" name="kategori" class="form-control" required>
+                    <option value="">Pilih Kategori</option>
+                    <option value="Review">Review</option>
+                    <option value="Rekomendasi">Rekomendasi</option>
+                    <option value="Pemeran">Pemeran</option>
+                    <option value="Perbandingan">Perbandingan</option>
+                    <option value="OST">OST</option>
+                    <option value="Preview">Preview</option>
+                    <option value="Berita">Berita</option>
+                </select>
+
+                @error('kategori')
+                    <span class="error-text">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-group">
                 <label for="thumbnail">Thumbnail</label>
                 <input type="file" id="thumbnail" name="thumbnail" class="form-control" accept="image/*">
                 @error('thumbnail')

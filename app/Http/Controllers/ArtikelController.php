@@ -43,6 +43,12 @@ class ArtikelController extends Controller
 
     public function store(Request $request)
     {
+        $pengguna = Pengguna::find(session('pengguna_id'));
+
+        if (!$pengguna) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+        }
+
         $request->validate([
             'judul' => 'required|string|max:255',
             'kategori' => 'required|string|max:100',
@@ -62,7 +68,7 @@ class ArtikelController extends Controller
             'kategori' => $request->kategori,
             'isi' => $request->isi,
             'thumbnail' => $thumbnail,
-            'id_pengguna' => $pengguna->id ?? session('pengguna_id'),
+            'id_pengguna' => $pengguna->id,
             'diterbitkan_pada' => now(),
         ]);
 
@@ -189,6 +195,6 @@ class ArtikelController extends Controller
         $artikel = Artikel::with('pengguna')->where('slug', $slug)->firstOrFail();
         $artikels = Artikel::with('pengguna')->latest()->take(3)->get();
         
-        return view('artikel-detail', compact('artikel', 'artikels'));
+        return view('DetailArtikel', compact('artikel', 'artikels'));
     }
 }

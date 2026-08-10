@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pengguna;
 use App\Models\Artikel;
+use App\Models\Drama;
 
 class DashboardController extends Controller
 {
-
     public function index()
     {
         $pengguna = Pengguna::find(session('pengguna_id'));
@@ -20,7 +20,6 @@ class DashboardController extends Controller
 
         if ($pengguna->role === 'admin') {
 
-            // Statistik khusus admin
             $totalArtikel = Artikel::count();
             $totalUsers = Pengguna::count();
             $totalAdmins = Pengguna::where('role', 'admin')->count();
@@ -33,9 +32,12 @@ class DashboardController extends Controller
             $users = Pengguna::where('role', 'user')->get();
             $admins = Pengguna::where('role', 'admin')->get();
 
+            $dramas = Drama::with('pengguna')
+                ->latest('diterbitkan_pada')
+                ->paginate(10);
+
         } else {
 
-            // User hanya mendapatkan total artikel miliknya
             $totalArtikel = Artikel::where('id_pengguna', $pengguna->id)->count();
 
             $artikels = Artikel::where('id_pengguna', $pengguna->id)
@@ -43,12 +45,13 @@ class DashboardController extends Controller
                 ->latest()
                 ->paginate(5);
 
-            // Tidak perlu data statistik admin
             $totalUsers = null;
             $totalAdmins = null;
             $totalUsersRole = null;
             $users = collect();
             $admins = collect();
+
+            $dramas = collect();
         }
 
         return view('dashboard.index', compact(
@@ -59,7 +62,8 @@ class DashboardController extends Controller
             'totalUsersRole',
             'artikels',
             'users',
-            'admins'
+            'admins',
+            'dramas' 
         ));
     }
 

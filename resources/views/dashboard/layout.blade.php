@@ -37,10 +37,29 @@
                     };
                     $isAdmin = $getPenggunaValue('role') === 'admin';
                 @endphp
+
+                @if($isAdmin)
+                <a href="{{ route('dashboard.drama') }}" class="sidebar-link {{ request()->routeIs('dashboard.drama*') ? 'active' : '' }}">
+                    <i class="fas fa-film"></i>
+                    <span>Drama</span>
+                </a>
+                @endif
+                @php
+                    $pengguna = session('pengguna');
+                    // Helper untuk mendapatkan nilai dari array atau object
+                    $getPenggunaValue = function($key) use ($pengguna) {
+                        if (!$pengguna) return null;
+                        if (is_array($pengguna)) {
+                            return $pengguna[$key] ?? null;
+                        }
+                        return $pengguna->$key ?? null;
+                    };
+                    $isAdmin = $getPenggunaValue('role') === 'admin';
+                @endphp
                 @if($isAdmin)
                 <a href="{{ route('dashboard.users.index') }}" class="sidebar-link {{ request()->routeIs('dashboard.users.*') ? 'active' : '' }}">
                     <i class="fas fa-users-cog"></i>
-                    <span>Manajemen User</span>
+                    <span>Manajemen Akun</span>
                 </a>
                 @endif
             </nav>

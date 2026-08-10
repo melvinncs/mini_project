@@ -72,103 +72,79 @@
                 <option value="2021">2021</option>
                 <option value="2020">2020</option>
             </select>
-            <button class="filter-btn">🔍 Cari</button>
+            <button class="filter-btn">Cari</button>
         </div>
 
-        <div class="drama-grid">
-            @php
-                $dramas = [
-                    [
-                        'title' => 'Queen of Tears',
-                        'poster' => 'queen-of-tears.jpg',
-                        'year' => '2024',
-                        'rating' => '9.2',
-                        'episodes' => '16',
-                        'genres' => ['Romance', 'Drama', 'Melodrama'],
-                        'badge' => '🔥 Hot',
-                        'badge_class' => 'badge-hot',
-                        'sinopsis' => 'Kisah cinta yang mengharukan antara sepasang suami istri yang harus menghadapi berbagai cobaan dalam pernikahan mereka.',
-                        'cast' => ['Kim Soo-hyun', 'Kim Ji-won', 'Park Sung-hoon']
-                    ],
-                    [
-                        'title' => 'Lovely Runner',
-                        'poster' => 'lovely-runner.jpg',
-                        'year' => '2024',
-                        'rating' => '8.9',
-                        'episodes' => '16',
-                        'genres' => ['Romance', 'Fantasy', 'Comedy'],
-                        'badge' => '✨ New',
-                        'badge_class' => 'badge-new',
-                        'sinopsis' => 'Seorang penggemar berat yang melakukan perjalanan waktu untuk menyelamatkan idolanya dari masa lalu.',
-                        'cast' => ['Byeon Woo-seok', 'Kim Hye-yoon', 'Song Geon-hee']
-                    ],
-                    [
-                        'title' => 'The Glory',
-                        'poster' => 'the-glory.jpg',
-                        'year' => '2023',
-                        'rating' => '8.7',
-                        'episodes' => '16',
-                        'genres' => ['Thriller', 'Drama', 'Revenge'],
-                        'badge' => '🔥 Hot',
-                        'badge_class' => 'badge-hot',
-                        'sinopsis' => 'Kisah balas dendam seorang wanita yang merencanakan pembalasan terhadap para pelaku bullying di masa sekolahnya.',
-                        'cast' => ['Song Hye-kyo', 'Lee Do-hyun', 'Lim Ji-yeon']
-                    ],
-                    [
-                        'title' => 'Reply 1988',
-                        'poster' => 'reply-1988.jpg',
-                        'year' => '2015',
-                        'rating' => '9.1',
-                        'episodes' => '20',
-                        'genres' => ['Keluarga', 'Drama', 'Komedi'],
-                        'badge' => '💛 Classic',
-                        'badge_class' => 'badge-populer',
-                        'sinopsis' => 'Kisah persahabatan dan keluarga lima anak muda di lingkungan Seoul pada tahun 1988.',
-                        'cast' => ['Lee Hye-ri', 'Park Bo-gum', 'Ryu Jun-yeol']
-                    ],
-                ];
-            @endphp
-
-            @foreach ($dramas as $drama)
-                <div class="drama-card">
-                    <img class="poster" src="{{ asset('images/dramas/' . $drama['poster']) }}" alt="{{ $drama['title'] }}" loading="lazy">
-                    <span class="badge-top {{ $drama['badge_class'] }}">{{ $drama['badge'] }}</span>
+        <div class="drama-grid-dashboard">
+            @forelse($dramas as $drama)
+                <div class="drama-card-dashboard">
+                    <div class="poster-wrapper">
+                        @if($drama->thumbnail)
+                            <img src="{{ asset($drama->thumbnail) }}" alt="{{ $drama->judul }}" loading="lazy">
+                        @else
+                            <img src="{{ asset('images/placeholder.jpg') }}" alt="Placeholder" loading="lazy">
+                        @endif
+                        
+                        @if($drama->status)
+                            <span class="badge-top 
+                                @if($drama->status == 'Ongoing') badge-ongoing
+                                @elseif($drama->status == 'Completed') badge-completed
+                                @elseif($drama->status == 'Upcoming') badge-upcoming
+                                @elseif($drama->status == 'On Hold') badge-hold
+                                @else badge-hot
+                                @endif
+                            ">
+                                {{ $drama->status }}
+                            </span>
+                        @endif
+                    </div>
+                    
                     <div class="info">
-                        <h3>{{ $drama['title'] }}</h3>
+                        <h3>{{ $drama->judul }}</h3>
+                        
                         <div class="meta">
-                            <span>{{ $drama['year'] }}</span>
+                            <span>📅 {{ $drama->tahun ?? 'N/A' }}</span>
                             <span>•</span>
-                            <span class="rating">⭐ {{ $drama['rating'] }}</span>
+                            <span class="rating">⭐ {{ $drama->rating ?? 'N/A' }}</span>
                             <span>•</span>
-                            <span>{{ $drama['episodes'] }} Episode</span>
+                            <span>📺 {{ $drama->episode ?? 0 }} Ep</span>
                         </div>
-                        <div class="genres">
-                            @foreach ($drama['genres'] as $genre)
-                                <span>{{ $genre }}</span>
-                            @endforeach
-                        </div>
-                        <p class="sinopsis">{{ $drama['sinopsis'] }}</p>
-                        <div class="pemeran">
-                            @foreach ($drama['cast'] as $actor)
-                                <span>{{ $actor }}</span>
-                            @endforeach
-                        </div>
+                        
+                        @if($drama->genre)
+                            <div class="genres">
+                                @foreach(explode(',', $drama->genre) as $genre)
+                                    <span>{{ trim($genre) }}</span>
+                                @endforeach
+                            </div>
+                        @endif
+                        
+                        @if($drama->sinopsis)
+                            <p class="sinopsis">{{ Str::limit($drama->sinopsis, 100) }}</p>
+                        @endif
+                        
+                        @if($drama->pemeran_utama)
+                            <div class="pemeran">
+                                @foreach(explode(',', $drama->pemeran_utama) as $actor)
+                                    <span>{{ trim($actor) }}</span>
+                                @endforeach
+                            </div>
+                        @endif
+                        
                         <div class="episode-info">
-                            <span>📺 {{ $drama['episodes'] }} Episode</span>
-                            <span>⭐ {{ $drama['rating'] }}/10</span>
+                            <span>📺 {{ $drama->episode ?? 0 }} Episode</span>
+                            <span>⭐ {{ $drama->rating ?? 'N/A' }}/10</span>
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+                    <p style="font-size: 18px; color: var(--text-gray);">Belum ada drama.</p>
+                </div>
+            @endforelse
         </div>
 
-        <!-- Pagination -->
-        <div class="pagination-wrapper">
-            <button class="pagination-btn">← Sebelumnya</button>
-            <button class="pagination-btn active">1</button>
-            <button class="pagination-btn-number">2</button>
-            <button class="pagination-btn-number">3</button>
-            <button class="pagination-btn">Selanjutnya →</button>
+        <div class="section-footer">
+            <a href="{{ route('drama') }}" class="btn-primary">Lihat Semua Drama →</a>
         </div>
     </section>
 
@@ -193,7 +169,7 @@
                 <option value="Preview">Preview</option>
                 <option value="Berita">Berita</option>
             </select>
-            <button class="filter-btn" id="filterArtikelBtn">🔍 Cari</button>
+            <button class="filter-btn" id="filterArtikelBtn">Cari</button>
         </div>
 
         <div class="article-grid" id="articleGrid">
@@ -232,141 +208,6 @@
 @endsection
 
 @section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    fetchDramas();
-});
-
-async function fetchDramas() {
-    const searchInput = document.querySelector('.filter-input');
-    const yearSelect = document.querySelector('.filter-select:last-child');
-    const genreSelect = document.querySelector('.filter-select:nth-child(2)');
-    const searchBtn = document.querySelector('.filter-btn');
-    const dramaGrid = document.querySelector('.drama-grid');
-    
-    // Show loading state
-    if (dramaGrid) {
-        dramaGrid.innerHTML = '<div class="loading">Loading dramas...</div>';
-    }
-    
-    async function loadDramas() {
-        try {
-            const query = searchInput ? searchInput.value.trim() || 'korean drama' : 'korean drama';
-            const year = yearSelect ? yearSelect.value || '2026' : '2026';
-            
-            const response = await fetch(`/api/dramas?q=${encodeURIComponent(query)}&year=${year}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            if (!data.success) {
-                throw new Error(data.message || 'Failed to fetch dramas');
-            }
-            
-            renderDramas(data.data);
-            
-            // Update total count
-            const totalElement = document.querySelector('.total-dramas');
-            if (totalElement) {
-                totalElement.textContent = `Total: ${data.total} dramas`;
-            }
-            
-        } catch (error) {
-            console.error('Error fetching dramas:', error);
-            if (dramaGrid) {
-                dramaGrid.innerHTML = `
-                    <div class="error-message">
-                        <p>Failed to load dramas: ${error.message}</p>
-                        <button onclick="fetchDramas()" class="btn-primary">Retry</button>
-                    </div>
-                `;
-            }
-        }
-    }
-    
-    function renderDramas(dramas) {
-        if (!dramaGrid) return;
-        
-        if (dramas.length === 0) {
-            dramaGrid.innerHTML = '<div class="no-results">No dramas found for the selected criteria.</div>';
-            return;
-        }
-        
-        let html = '';
-        dramas.forEach(drama => {
-            const genres = drama.genres || [];
-            const rating = drama.rating ? drama.rating.toFixed(1) : 'N/A';
-            const poster = drama.poster || '/images/placeholder.jpg';
-            
-            html += `
-                <div class="drama-card">
-                    <img class="poster" src="${poster}" alt="${drama.title}" loading="lazy" 
-                         onerror="this.src='/images/placeholder.jpg'">
-                    ${drama.status === 'Ended' ? '<span class="badge-top badge-ended">Selesai</span>' : ''}
-                    <div class="info">
-                        <h3>${drama.title}</h3>
-                        <div class="meta">
-                            <span>${drama.year || 'N/A'}</span>
-                            <span>•</span>
-                            <span class="rating">⭐ ${rating}</span>
-                            <span>•</span>
-                            <span>${drama.episodes || 0} Episode</span>
-                        </div>
-                        <div class="genres">
-                            ${genres.map(g => `<span>${g}</span>`).join('')}
-                        </div>
-                        <p class="sinopsis">${drama.summary || 'No synopsis available'}</p>
-                        <div class="pemeran">
-                            ${drama.cast && drama.cast.length > 0 
-                                    ? drama.cast.slice(0, 3).map(actor => 
-                                    `<span>${actor.name}${actor.character ? ` as ${actor.character}` : ''}</span>`
-                                    ).join('')
-                                : '<span>Cast information not available</span>'
-                            }
-                        </div>
-                        <div class="episode-info">
-                            <span>📺 ${drama.episodes || 0} Episode</span>
-                            <span>⭐ ${rating}/10</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        dramaGrid.innerHTML = html;
-    }
-    
-    // Load initial dramas
-    await loadDramas();
-    
-    // Add event listeners
-    if (searchBtn) {
-        searchBtn.addEventListener('click', loadDramas);
-    }
-    
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                loadDramas();
-            }
-        });
-    }
-    
-    if (yearSelect) {
-        yearSelect.addEventListener('change', loadDramas);
-    }
-}
-</script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Filter Artikel

@@ -1,11 +1,11 @@
 @extends('dashboard.layout')
 
-@section('title', 'Tambah User')
+@section('title', 'Tambah Akun')
 
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h3>Tambah User Baru</h3>
+        <h3>Tambah Akun Baru</h3>
     </div>
     <div class="card-body">
         <form action="{{ route('dashboard.users.store') }}" method="POST">

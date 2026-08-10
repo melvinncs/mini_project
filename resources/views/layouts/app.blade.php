@@ -23,16 +23,26 @@
             @php
                 $isHomePage = request()->routeIs('home');
                 $currentRoute = request()->route()->getName();
+                $isDramaPage = request()->routeIs('drama');
+                $isArtikelPage = request()->routeIs('artikel');
             @endphp
 
             @if($isHomePage)
                 <li><a href="#home" class="nav-link active" data-target="home">Home</a></li>
                 <li><a href="#drama" class="nav-link" data-target="drama">Drama</a></li>
                 <li><a href="#artikel" class="nav-link" data-target="artikel">Artikel</a></li>
+            @elseif($isDramaPage)
+                <li><a href="{{ route('home') }}#home">Home</a></li>
+                <li><a href="{{ route('drama') }}" class="active">Drama</a></li>
+                <li><a href="{{ route('artikel') }}">Artikel</a></li>
+            @elseif($isArtikelPage)
+                <li><a href="{{ route('home') }}#home">Home</a></li>
+                <li><a href="{{ route('drama') }}">Drama</a></li>
+                <li><a href="{{ route('artikel') }}" class="active">Artikel</a></li>
             @else
-                <li><a href="{{ route('home') }}#home" class="{{ $currentRoute == 'home' ? 'active' : '' }}">Home</a></li>
-                <li><a href="{{ route('drama') }}" class="{{ $currentRoute == 'drama' ? 'active' : '' }}">Drama</a></li>
-                <li><a href="{{ route('artikel') }}" class="{{ $currentRoute == 'artikel' ? 'active' : '' }}">Artikel</a></li>
+                <li><a href="{{ route('home') }}#home">Home</a></li>
+                <li><a href="{{ route('drama') }}">Drama</a></li>
+                <li><a href="{{ route('artikel') }}">Artikel</a></li>
             @endif
         </ul>
 

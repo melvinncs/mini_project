@@ -59,7 +59,10 @@ class ArtikelController extends Controller
         $thumbnail = null;
 
         if ($request->hasFile('thumbnail')) {
-            $thumbnail = $request->file('thumbnail')->store('artikel', 'public');
+            $file = $request->file('thumbnail');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/thumbnails'), $filename);
+            $thumbnail = 'uploads/thumbnails/' . $filename;
         }
 
         Artikel::create([

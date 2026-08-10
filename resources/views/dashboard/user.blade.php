@@ -1,6 +1,6 @@
 @extends('dashboard.layout')
 
-@section('title', 'Manajemen User')
+@section('title', 'Manajemen Akun')
 
 @section('content')
 <div class="card">
@@ -8,7 +8,7 @@
         <h3>Daftar Pengguna</h3>
         <div class="card-header-actions">
             <a href="{{ route('dashboard.users.create') }}" class="btn-primary">
-                <i class="fas fa-plus"></i> Tambah User
+                <i class="fas fa-plus"></i> Tambah Akun
             </a>
         </div>
     </div>

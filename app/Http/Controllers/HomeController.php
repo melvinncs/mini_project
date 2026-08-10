@@ -15,6 +15,10 @@ class HomeController extends Controller
             ->latest('diterbitkan_pada')
             ->get();
 
-        return view('home', compact('artikels'));
+        $dramas = Drama::with('pengguna')
+            ->latest('diterbitkan_pada')
+            ->get();
+
+        return view('home', compact('artikels', 'dramas'));
     }
 }

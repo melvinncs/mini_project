@@ -1,11 +1,11 @@
 @extends('dashboard.layout')
 
-@section('title', 'Edit User')
+@section('title', 'Edit Akun')
 
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h3>Edit User</h3>
+        <h3>Edit Akun</h3>
     </div>
     <div class="card-body">
         <form action="{{ route('dashboard.users.update', $user->id) }}" method="POST">

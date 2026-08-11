@@ -40,15 +40,16 @@
                         <td>
                             @php
                                 $pengguna = session('pengguna');
+                                $isSelf = $pengguna && $user->id === (is_array($pengguna) ? $pengguna['id'] : $pengguna->id);
                             @endphp
                             
-                            @if($pengguna && $user->id !== (is_array($pengguna) ? $pengguna['id'] : $pengguna->id))
-                                <!-- Edit User -->
-                                <a href="{{ route('dashboard.users.edit', $user->id) }}" class="btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                
-                                <!-- Delete User -->
+                            <!-- Edit User - Tampilkan untuk semua user -->
+                            <a href="{{ route('dashboard.users.edit', $user->id) }}" class="btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            @if(!$isSelf)
+                                <!-- Delete User - Hanya untuk user lain -->
                                 <form action="{{ route('dashboard.users.delete', $user->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
@@ -57,7 +58,7 @@
                                     </button>
                                 </form>
                             @else
-                                <span class="text-muted">Anda (Tidak dapat mengedit diri sendiri)</span>
+                                <span class="text-muted" style="margin-left: 5px;">(Akun sendiri)</span>
                             @endif
                         </td>
                     </tr>

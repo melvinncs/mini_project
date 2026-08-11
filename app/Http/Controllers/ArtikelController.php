@@ -116,6 +116,7 @@ class ArtikelController extends Controller
 
         $request->validate([
             'judul' => 'required|string|max:255',
+            'kategori' => 'required|string|max:100',
             'isi' => 'required|string',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -144,6 +145,7 @@ class ArtikelController extends Controller
         }
 
         $artikel->judul = $request->judul;
+        $artikel->kategori = $request->kategori;
         $artikel->isi = $request->isi;
         $artikel->save();
 
@@ -198,14 +200,15 @@ class ArtikelController extends Controller
         $artikel = Artikel::with('pengguna')->where('slug', $slug)->firstOrFail();
         $artikels = Artikel::with('pengguna')->latest()->take(3)->get();
         
-        return view('DetailArtikel', compact('artikel', 'artikels'));
+        return view('dashboard.DetailArtikel', compact('artikel', 'artikels'));
     }
 
     public function publicIndex()
     {
         $artikels = Artikel::with('pengguna')
             ->latest('diterbitkan_pada')
-            ->paginate(12); // 12 artikel per halaman
+            ->paginate(12)
+            ->withQueryString();
             
         return view('artikel', compact('artikels'));
     }

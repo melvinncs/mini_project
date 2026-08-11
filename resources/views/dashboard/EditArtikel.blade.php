@@ -21,6 +21,23 @@
             </div>
 
             <div class="form-group">
+                <label for="kategori">Kategori</label>
+                <select id="kategori" name="kategori" class="form-control" required>
+                    <option value="">Pilih Kategori</option>
+                    <option value="Review" @selected(old('kategori', $artikel->kategori) === 'Review')>Review</option>
+                    <option value="Rekomendasi" @selected(old('kategori', $artikel->kategori) === 'Rekomendasi')>Rekomendasi</option>
+                    <option value="Pemeran" @selected(old('kategori', $artikel->kategori) === 'Pemeran')>Pemeran</option>
+                    <option value="Perbandingan" @selected(old('kategori', $artikel->kategori) === 'Perbandingan')>Perbandingan</option>
+                    <option value="OST" @selected(old('kategori', $artikel->kategori) === 'OST')>OST</option>
+                    <option value="Preview" @selected(old('kategori', $artikel->kategori) === 'Preview')>Preview</option>
+                    <option value="Berita" @selected(old('kategori', $artikel->kategori) === 'Berita')>Berita</option>
+                </select>
+                @error('kategori')
+                    <span class="error-text">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-group">
                 <label for="thumbnail">Thumbnail</label>
                 @if($artikel->thumbnail)
                 <div class="current-thumbnail">

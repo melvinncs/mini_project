@@ -51,33 +51,30 @@
         </div>
 
         <!-- Filter Drama -->
-        <div class="filter-wrapper">
-            <input type="text" placeholder="Cari drama..." class="filter-input">
-            <select class="filter-select">
+        <form class="filter-wrapper" action="{{ route('home') }}#drama" method="GET">
+            <input type="text" name="drama_cari" value="{{ request('drama_cari') }}" placeholder="Cari drama..." class="filter-input" id="searchDrama">
+            <select class="filter-select" id="genreFilter" name="drama_genre">
                 <option value="">Semua Genre</option>
-                <option value="Romance">Romance</option>
-                <option value="Drama">Drama</option>
-                <option value="Thriller">Thriller</option>
-                <option value="Comedy">Comedy</option>
-                <option value="Fantasy">Fantasy</option>
-                <option value="Action">Action</option>
+                <option value="Aksi & Petualangan" @selected(request('drama_genre') === 'Aksi & Petualangan')>Aksi & Petualangan</option>
+                <option value="Animasi" @selected(request('drama_genre') === 'Animasi')>Animasi</option>
+                <option value="Drama" @selected(request('drama_genre') === 'Drama')>Drama</option>
+                <option value="Komedi" @selected(request('drama_genre') === 'Komedi')>Komedi</option>
+                <option value="Kejahatan" @selected(request('drama_genre') === 'Kejahatan')>Kejahatan</option>
+                <option value="Misteri" @selected(request('drama_genre') === 'Misteri')>Misteri</option>
+                <option value="Romantis" @selected(request('drama_genre') === 'Romantis')>Romantis</option>
             </select>
-            <select class="filter-select">
+            <select class="filter-select" id="tahunFilter" name="drama_tahun">
                 <option value="">Semua Tahun</option>
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
-                <option value="2021">2021</option>
-                <option value="2020">2020</option>
+                @foreach(range(date('Y'), 2020) as $tahun)
+                    <option value="{{ $tahun }}" @selected((string) request('drama_tahun') === (string) $tahun)>{{ $tahun }}</option>
+                @endforeach
             </select>
-            <button class="filter-btn">Cari</button>
-        </div>
+            <button type="submit" class="filter-btn" id="filterDramaBtn">Cari</button>
+        </form>
 
-        <div class="drama-grid-dashboard">
+        <div class="drama-grid-dashboard" id="dramaGrid">
             @forelse($dramas as $drama)
-                <div class="drama-card-dashboard">
+                <a href="{{ route('drama.detail', $drama->slug) }}" class="drama-card-dashboard drama-card-link" data-genre="{{ $drama->genre ?? '' }}" data-tahun="{{ $drama->tahun ?? '' }}" aria-label="Lihat detail drama {{ $drama->judul }}">
                     <div class="poster-wrapper">
                         @if($drama->thumbnail)
                             <img src="{{ asset($drama->thumbnail) }}" alt="{{ $drama->judul }}" loading="lazy">
@@ -135,7 +132,7 @@
                             <span> {{ $drama->rating ?? 'N/A' }}/10</span>
                         </div>
                     </div>
-                </div>
+                </a>
             @empty
                 <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
                     <p style="font-size: 18px; color: var(--text-gray);">Belum ada drama.</p>
@@ -157,24 +154,24 @@
         </div>
 
         <!-- Filter Artikel -->
-        <div class="filter-wrapper">
-            <input type="text" placeholder="Cari artikel..." class="filter-input" id="searchArtikel">
-            <select class="filter-select" id="kategoriFilter">
+        <form class="filter-wrapper" action="{{ route('home') }}#artikel" method="GET">
+            <input type="text" name="artikel_cari" value="{{ request('artikel_cari') }}" placeholder="Cari artikel..." class="filter-input" id="searchArtikel">
+            <select class="filter-select" id="kategoriFilter" name="artikel_kategori">
                 <option value="">Semua Kategori</option>
-                <option value="Review">Review</option>
-                <option value="Rekomendasi">Rekomendasi</option>
-                <option value="Pemeran">Pemeran</option>
-                <option value="Perbandingan">Perbandingan</option>
-                <option value="OST">OST</option>
-                <option value="Preview">Preview</option>
-                <option value="Berita">Berita</option>
+                <option value="Review" @selected(request('artikel_kategori') === 'Review')>Review</option>
+                <option value="Rekomendasi" @selected(request('artikel_kategori') === 'Rekomendasi')>Rekomendasi</option>
+                <option value="Pemeran" @selected(request('artikel_kategori') === 'Pemeran')>Pemeran</option>
+                <option value="Perbandingan" @selected(request('artikel_kategori') === 'Perbandingan')>Perbandingan</option>
+                <option value="OST" @selected(request('artikel_kategori') === 'OST')>OST</option>
+                <option value="Preview" @selected(request('artikel_kategori') === 'Preview')>Preview</option>
+                <option value="Berita" @selected(request('artikel_kategori') === 'Berita')>Berita</option>
             </select>
-            <button class="filter-btn" id="filterArtikelBtn">Cari</button>
-        </div>
+            <button type="submit" class="filter-btn" id="filterArtikelBtn">Cari</button>
+        </form>
 
         <div class="article-grid" id="articleGrid">
             @forelse($artikels as $artikel)
-                <div class="article-card">
+                <a href="{{ route('artikel.detail', $artikel->slug) }}" class="article-card article-card-link" data-kategori="{{ $artikel->kategori ?? '' }}" aria-label="Baca artikel {{ $artikel->judul }}">
                     <img class="thumb"
                         src="{{ $artikel->thumbnail ? asset($artikel->thumbnail) : asset('images/default-article.jpg') }}"
                         alt="{{ $artikel->judul }}"
@@ -191,9 +188,8 @@
                                 <div class="date">{{ $artikel->diterbitkan_pada ? $artikel->diterbitkan_pada->format('d M Y') : 'Belum dipublikasi' }}</div>
                             </div>
                         </div>
-                        <a href="{{ route('artikel.detail', $artikel->slug) }}" class="read-more">Baca Selengkapnya →</a>
                     </div>
-                </div>
+                </a>
             @empty
                 <div class="no-articles">
                     <p>Belum ada artikel.</p>
@@ -210,63 +206,80 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Filter Artikel
-    const searchInput = document.getElementById('searchArtikel');
+    const searchDrama = document.getElementById('searchDrama');
+    const genreFilter = document.getElementById('genreFilter');
+    const tahunFilter = document.getElementById('tahunFilter');
+    const filterDramaBtn = document.getElementById('filterDramaBtn');
+    const dramaGrid = document.getElementById('dramaGrid');
+
     const kategoriFilter = document.getElementById('kategoriFilter');
-    const filterBtn = document.getElementById('filterArtikelBtn');
+    const searchArtikel = document.getElementById('searchArtikel');
+    const filterArtikelBtn = document.getElementById('filterArtikelBtn');
     const articleGrid = document.getElementById('articleGrid');
-    
-    function filterArticles() {
-        const keyword = searchInput.value.toLowerCase();
-        const kategori = kategoriFilter.value;
-        
-        const cards = articleGrid.querySelectorAll('.article-card');
-        let hasResults = false;
-        
-        cards.forEach(card => {
-            const title = card.querySelector('h3').textContent.toLowerCase();
-            const desc = card.querySelector('p').textContent.toLowerCase();
-            const category = card.querySelector('.category').textContent.toLowerCase();
-            
-            let show = true;
-            
-            if (keyword && !title.includes(keyword) && !desc.includes(keyword)) {
-                show = false;
-            }
-            
-            if (kategori && category !== kategori.toLowerCase()) {
-                show = false;
-            }
-            
-            card.style.display = show ? 'block' : 'none';
-            if (show) hasResults = true;
-        });
-        
-        // Show no results message
-        let noResult = articleGrid.querySelector('.no-result');
-        if (!hasResults) {
-            if (!noResult) {
-                noResult = document.createElement('div');
-                noResult.className = 'no-result';
-                noResult.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-gray);">Tidak ada artikel yang ditemukan.</p>';
-                articleGrid.appendChild(noResult);
-            }
-        } else if (noResult) {
+
+    function toggleNoResult(grid, hasResults, message) {
+        let noResult = grid.querySelector('.no-result');
+
+        if (!hasResults && !noResult) {
+            noResult = document.createElement('div');
+            noResult.className = 'no-result';
+            noResult.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-gray);';
+            noResult.innerHTML = `<p>${message}</p>`;
+            grid.appendChild(noResult);
+        } else if (hasResults && noResult) {
             noResult.remove();
         }
     }
-    
-    if (filterBtn) {
-        filterBtn.addEventListener('click', filterArticles);
-    }
-    
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                filterArticles();
-            }
+
+    function filterDramas() {
+        const keyword = searchDrama.value.trim().toLowerCase();
+        const genre = genreFilter.value.toLowerCase();
+        const tahun = tahunFilter.value;
+        let hasResults = false;
+
+        dramaGrid.querySelectorAll('.drama-card-dashboard').forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const synopsis = card.querySelector('.sinopsis')?.textContent.toLowerCase() || '';
+            const cardGenre = card.dataset.genre.toLowerCase();
+            const cardTahun = card.dataset.tahun;
+            const show = (!keyword || title.includes(keyword) || synopsis.includes(keyword))
+                && (!genre || cardGenre.includes(genre))
+                && (!tahun || cardTahun === tahun);
+
+            card.style.display = show ? '' : 'none';
+            hasResults ||= show;
         });
+
+        toggleNoResult(dramaGrid, hasResults, 'Tidak ada drama yang ditemukan.');
     }
+
+    function filterArticles() {
+        const keyword = searchArtikel.value.trim().toLowerCase();
+        const kategori = kategoriFilter.value.toLowerCase();
+        let hasResults = false;
+
+        articleGrid.querySelectorAll('.article-card').forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const desc = card.querySelector('p').textContent.toLowerCase();
+            const cardKategori = card.dataset.kategori.toLowerCase();
+            const show = (!keyword || title.includes(keyword) || desc.includes(keyword))
+                && (!kategori || cardKategori === kategori);
+
+            card.style.display = show ? '' : 'none';
+            hasResults ||= show;
+        });
+
+        toggleNoResult(articleGrid, hasResults, 'Tidak ada artikel yang ditemukan.');
+    }
+
+    filterDramaBtn?.addEventListener('click', filterDramas);
+    filterArtikelBtn?.addEventListener('click', filterArticles);
+    searchDrama?.addEventListener('keydown', event => {
+        if (event.key === 'Enter') filterDramas();
+    });
+    searchArtikel?.addEventListener('keydown', event => {
+        if (event.key === 'Enter') filterArticles();
+    });
 });
 </script>
 @endsection

@@ -16,7 +16,6 @@
                 <div id="hasil_pencarian" style="position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #E4E4E7; border-radius: 8px; max-height: 300px; overflow-y: auto; z-index: 20; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"></div>
             </div>
 
-            <!-- TAMBAHKAN INI: Hidden input untuk judul -->
             <input type="hidden" id="judul" name="judul">
             <input type="hidden" id="tmdb_poster_url" name="tmdb_poster_url">
 

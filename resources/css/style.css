@@ -892,6 +892,17 @@ body {
     transition: all 0.3s ease;
 }
 
+.article-card-link {
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.article-card-link:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+}
+
 .article-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 30px rgba(0,0,0,0.08);

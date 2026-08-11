@@ -15,6 +15,7 @@ class Artikel extends Model
         'id_pengguna',
         'judul',
         'slug',
+        'kategori',
         'thumbnail',
         'isi',
         'diterbitkan_pada',

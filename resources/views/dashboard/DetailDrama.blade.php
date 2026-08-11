@@ -1,14 +1,8 @@
-@extends('dashboard.layout')
-
-@section('title', $drama->judul)
+@extends('layouts.app')
 
 @section('content')
 <div class="article-detail-page">
-    <div class="container" style="max-width: 760px; margin: 0 auto; padding: 0 24px;">
-        <a href="{{ route('dashboard.drama') }}" class="btn-secondary" style="margin-bottom: 20px; display: inline-flex; align-items: center; gap: 8px;">
-            <i class="fas fa-arrow-left"></i> Kembali
-        </a>
-        
+    <div class="container">
         <div class="article-card">
             <div class="article-header">
                 <span class="article-category">{{ $drama->genre ?? 'Drama' }}</span>
@@ -20,14 +14,14 @@
                     @if($drama->rating)
                     <span><i class="fas fa-star" style="color: #F59E0B;"></i> {{ $drama->rating }}</span>
                     @endif
-                    <span><i class="fas fa-tag"></i> {{ $drama->status }}</span>
-                    <span><i class="fas fa-user"></i> {{ $drama->pengguna->nama }}</span>
+                    <span><i class="fas fa-tag"></i> {{ $drama->status ?? 'Ongoing' }}</span>
+                    <span><i class="fas fa-user"></i> {{ $drama->pengguna->nama ?? 'Admin' }}</span>
                 </div>
             </div>
 
             @if($drama->thumbnail)
             <div class="article-thumbnail">
-                <img src="{{ asset($drama->thumbnail) }}" alt="{{ $drama->judul }}" style="width: 100%; max-height: 420px; object-fit: cover; display: block;">
+                <img src="{{ asset($drama->thumbnail) }}" alt="{{ $drama->judul }}">
             </div>
             @endif
 
@@ -47,21 +41,13 @@
                 </div>
             </div>
 
-            <!-- Tombol aksi untuk admin (tanpa pengecekan) -->
             <div class="article-navigation">
-                <div style="display: flex; gap: 12px;">
-                    <a href="{{ route('dashboard.drama.edit', $drama->id) }}" class="btn-primary" style="flex: 1; justify-content: center;">
-                        <i class="fas fa-edit"></i> Edit Drama
-                    </a>
-                    <form action="{{ route('dashboard.drama.delete', $drama->id) }}" method="POST" style="flex: 1;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn-secondary" style="width: 100%; justify-content: center; color: #DC2626; border-color: #DC2626;"
-                                onclick="return confirm('Yakin ingin menghapus drama ini?')">
-                            <i class="fas fa-trash"></i> Hapus Drama
-                        </button>
-                    </form>
-                </div>
+                <a href="{{ route('drama') }}" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Daftar Drama
+                </a>
+                <a href="{{ route('home') }}#drama" class="btn-primary">
+                    <i class="fas fa-home"></i> Kembali ke Home
+                </a>
             </div>
         </div>
     </div>

@@ -23,13 +23,13 @@
                 <label for="kategori">Kategori</label>
                 <select id="kategori" name="kategori" class="form-control" required>
                     <option value="">Pilih Kategori</option>
-                    <option value="Review">Review</option>
-                    <option value="Rekomendasi">Rekomendasi</option>
-                    <option value="Pemeran">Pemeran</option>
-                    <option value="Perbandingan">Perbandingan</option>
-                    <option value="OST">OST</option>
-                    <option value="Preview">Preview</option>
-                    <option value="Berita">Berita</option>
+                    <option value="Review" @selected(old('kategori') === 'Review')>Review</option>
+                    <option value="Rekomendasi" @selected(old('kategori') === 'Rekomendasi')>Rekomendasi</option>
+                    <option value="Pemeran" @selected(old('kategori') === 'Pemeran')>Pemeran</option>
+                    <option value="Perbandingan" @selected(old('kategori') === 'Perbandingan')>Perbandingan</option>
+                    <option value="OST" @selected(old('kategori') === 'OST')>OST</option>
+                    <option value="Preview" @selected(old('kategori') === 'Preview')>Preview</option>
+                    <option value="Berita" @selected(old('kategori') === 'Berita')>Berita</option>
                 </select>
 
                 @error('kategori')

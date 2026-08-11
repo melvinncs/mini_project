@@ -5,6 +5,7 @@
     <div class="container">
         <div class="article-card">
             <div class="article-header">
+                <span class="article-category">{{ $artikel->kategori ?? 'Artikel' }}</span>
                 <h1>{{ $artikel->judul }}</h1>
                 <div class="article-meta">
                     <span><i class="fas fa-user"></i> {{ $artikel->pengguna->nama ?? 'Admin' }}</span>

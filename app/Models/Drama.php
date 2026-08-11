@@ -26,11 +26,11 @@ class Drama extends Model
         'diterbitkan_pada'
     ];
 
-    protected $casts = [
-        'diterbitkan_pada' => 'datetime',
-        'tahun' => 'integer',
-        'episode' => 'integer'
-    ];
+    // protected $casts = [
+    //     'diterbitkan_pada' => 'datetime',
+    //     'tahun' => 'integer',
+    //     'episode' => 'integer'
+    // ];
 
     // relasi dengan pengguna
     public function pengguna()
@@ -39,15 +39,15 @@ class Drama extends Model
     }
 
     // status
-    public function getStatusBadgeAttribute()
-    {
-        $statuses = [
-            'Ongoing' => 'badge-success',
-            'Completed' => 'badge-primary',
-            'Upcoming' => 'badge-warning',
-            'On Hold' => 'badge-danger'
-        ];
+    // public function getStatusBadgeAttribute()
+    // {
+    //     $statuses = [
+    //         'Ongoing' => 'badge-success',
+    //         'Completed' => 'badge-primary',
+    //         'Upcoming' => 'badge-warning',
+    //         'On Hold' => 'badge-danger'
+    //     ];
 
-        return $statuses[$this->status] ?? 'badge-secondary';
-    }
+    //     return $statuses[$this->status] ?? 'badge-secondary';
+    // }
 }

@@ -47,8 +47,10 @@
         </ul>
 
         <div class="navbar-actions">
-            <a href="{{ route('login') }}" class="btn-login">Masuk</a>
-            <a href="{{ route('register') }}" class="btn-register">Daftar</a>
+            @unless (trim($__env->yieldContent('hideAuthActions')))
+                <a href="{{ route('login') }}" class="btn-login">Masuk</a>
+                <a href="{{ route('register') }}" class="btn-register">Daftar</a>
+            @endunless
 
             <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
                 <span></span>
@@ -57,10 +59,12 @@
             </button>
         </div>
 
-        <div class="navbar-actions-mobile">
-            <a href="{{ route('login') }}" class="btn-login-mobile">Masuk</a>
-            <a href="{{ route('register') }}" class="btn-register-mobile">Daftar</a>
-        </div>
+        @unless (trim($__env->yieldContent('hideAuthActions')))
+            <div class="navbar-actions-mobile">
+                <a href="{{ route('login') }}" class="btn-login-mobile">Masuk</a>
+                <a href="{{ route('register') }}" class="btn-register-mobile">Daftar</a>
+            </div>
+        @endunless
     </nav>
 
     <!-- CONTENT -->

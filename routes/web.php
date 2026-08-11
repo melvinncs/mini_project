@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Models\Artikel;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -20,11 +19,6 @@ Route::get('/artikel', [ArtikelController::class, 'publicIndex'])->name('artikel
 // Route::get('/drama', function () {
 //     return view('drama');
 // })->name('drama');
-
-Route::get('/artikel', function () {
-    $artikels = Artikel::with('pengguna')->latest()->paginate(10);
-    return view('artikel', compact('artikels'));
-})->name('artikel');
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

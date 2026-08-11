@@ -27,7 +27,7 @@
 
         <div class="article-grid" id="articleGrid">
             @forelse($artikels as $artikel)
-                <div class="article-card" data-kategori="{{ $artikel->kategori ?? '' }}">
+                <a href="{{ route('artikel.detail', $artikel->slug) }}" class="article-card article-card-link" data-kategori="{{ $artikel->kategori ?? '' }}" aria-label="Baca artikel {{ $artikel->judul }}">
                     <img class="thumb"
                         src="{{ $artikel->thumbnail ? asset($artikel->thumbnail) : asset('images/default-article.jpg') }}"
                         alt="{{ $artikel->judul }}"
@@ -42,9 +42,9 @@
                                 <div class="date">{{ $artikel->diterbitkan_pada ? $artikel->diterbitkan_pada->format('d M Y') : 'Belum dipublikasi' }}</div>
                             </div>
                         </div>
-                        <a href="{{ route('artikel.detail', $artikel->slug) }}" class="read-more">Baca Selengkapnya →</a>
+                        <span class="read-more">Baca Selengkapnya →</span>
                     </div>
-                </div>
+                </a>
             @empty
                 <div class="no-articles" style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
                     <p style="font-size: 18px; color: var(--text-gray);">Belum ada artikel.</p>
@@ -52,11 +52,26 @@
             @endforelse
         </div>
 
-        <!-- Pagination -->
-        @if(method_exists($artikels, 'links'))
-            <div class="pagination-wrapper" style="margin-top: 40px; display: flex; justify-content: center;">
-                {{ $artikels->links() }}
-            </div>
+        @if ($artikels->hasPages())
+            <nav class="pagination-wrapper" aria-label="Pagination artikel">
+                @if ($artikels->onFirstPage())
+                    <span class="pagination-btn" aria-disabled="true">← Sebelumnya</span>
+                @else
+                    <a href="{{ $artikels->previousPageUrl() }}" class="pagination-btn" rel="prev">← Sebelumnya</a>
+                @endif
+
+                @foreach ($artikels->getUrlRange(1, $artikels->lastPage()) as $halaman => $url)
+                    <a href="{{ $url }}" class="pagination-btn{{ $halaman === $artikels->currentPage() ? ' active' : '' }}" @if ($halaman === $artikels->currentPage()) aria-current="page" @endif>
+                        {{ $halaman }}
+                    </a>
+                @endforeach
+
+                @if ($artikels->hasMorePages())
+                    <a href="{{ $artikels->nextPageUrl() }}" class="pagination-btn" rel="next">Berikutnya →</a>
+                @else
+                    <span class="pagination-btn" aria-disabled="true">Berikutnya →</span>
+                @endif
+            </nav>
         @endif
     </section>
 @endsection
@@ -73,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const keyword = searchInput.value.toLowerCase();
         const kategori = kategoriFilter.value.toLowerCase();
         
-        const cards = articleGrid.querySelectorAll('.article-card');
+        const cards = articleGrid.querySelectorAll('.article-card-link');
         let hasResults = false;
         
         cards.forEach(card => {

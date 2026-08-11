@@ -33,7 +33,7 @@
 
         <div class="drama-grid-dashboard" id="dramaGrid">
             @forelse($dramas as $drama)
-                <div class="drama-card-dashboard" data-genre="{{ $drama->genre }}" data-status="{{ $drama->status }}">
+                <a href="{{ route('drama.detail', $drama->slug) }}" class="drama-card-dashboard drama-card-link" data-genre="{{ $drama->genre }}" data-status="{{ $drama->status }}" aria-label="Lihat detail drama {{ $drama->judul }}">
                     <div class="poster-wrapper">
                         @if($drama->thumbnail)
                             <img src="{{ asset($drama->thumbnail) }}" alt="{{ $drama->judul }}" loading="lazy">
@@ -91,13 +91,35 @@
                             <span>⭐ {{ $drama->rating ?? 'N/A' }}/10</span>
                         </div>
                     </div>
-                </div>
+                </a>
             @empty
                 <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
                     <p style="font-size: 18px; color: var(--text-gray);">Belum ada drama.</p>
                 </div>
             @endforelse
         </div>
+
+        @if ($dramas->hasPages())
+            <nav class="pagination-wrapper" aria-label="Pagination drama">
+                @if ($dramas->onFirstPage())
+                    <span class="pagination-btn" aria-disabled="true">← Sebelumnya</span>
+                @else
+                    <a href="{{ $dramas->previousPageUrl() }}" class="pagination-btn" rel="prev">← Sebelumnya</a>
+                @endif
+
+                @foreach ($dramas->getUrlRange(1, $dramas->lastPage()) as $halaman => $url)
+                    <a href="{{ $url }}" class="pagination-btn{{ $halaman === $dramas->currentPage() ? ' active' : '' }}" @if ($halaman === $dramas->currentPage()) aria-current="page" @endif>
+                        {{ $halaman }}
+                    </a>
+                @endforeach
+
+                @if ($dramas->hasMorePages())
+                    <a href="{{ $dramas->nextPageUrl() }}" class="pagination-btn" rel="next">Berikutnya →</a>
+                @else
+                    <span class="pagination-btn" aria-disabled="true">Berikutnya →</span>
+                @endif
+            </nav>
+        @endif
     </section>
 @endsection
 
@@ -115,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const genre = genreFilter.value.toLowerCase();
         const status = statusFilter.value.toLowerCase();
         
-        const cards = dramaGrid.querySelectorAll('.drama-card-dashboard');
+        const cards = dramaGrid.querySelectorAll('.drama-card-link');
         let hasResults = false;
         
         cards.forEach(card => {

@@ -66,13 +66,13 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = Pengguna::findOrFail($id);
-        $pengguna = session('pengguna');
+        // $pengguna = session('pengguna');
 
-        $penggunaId = is_array($pengguna) ? $pengguna['id'] : ($pengguna->id ?? null);
-        if ($user->id === $penggunaId) {
-            return redirect()->route('dashboard.users.index')
-                ->with('error', 'Anda tidak dapat mengedit akun sendiri!');
-        }
+        // $penggunaId = is_array($pengguna) ? $pengguna['id'] : ($pengguna->id ?? null);
+        // if ($user->id === $penggunaId) {
+        //     return redirect()->route('dashboard.users.index')
+        //         ->with('error', 'Anda tidak dapat mengedit akun sendiri!');
+        // }
 
         return view('dashboard.EditUser', compact('user'));
     }
@@ -80,13 +80,13 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = Pengguna::findOrFail($id);
-        $pengguna = session('pengguna');
+        // $pengguna = session('pengguna');
 
-        $penggunaId = is_array($pengguna) ? $pengguna['id'] : ($pengguna->id ?? null);
-        if ($user->id === $penggunaId) {
-            return redirect()->route('dashboard.users.index')
-                ->with('error', 'Anda tidak dapat mengedit akun sendiri!');
-        }
+        // $penggunaId = is_array($pengguna) ? $pengguna['id'] : ($pengguna->id ?? null);
+        // if ($user->id === $penggunaId) {
+        //     return redirect()->route('dashboard.users.index')
+        //         ->with('error', 'Anda tidak dapat mengedit akun sendiri!');
+        // }
 
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',

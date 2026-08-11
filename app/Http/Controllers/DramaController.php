@@ -276,7 +276,8 @@ class DramaController extends Controller
     {
         $dramas = Drama::with('pengguna')
             ->latest('diterbitkan_pada')
-            ->paginate(12); 
+            ->paginate(12)
+            ->withQueryString();
 
         return view('drama', compact('dramas'));
     }
@@ -286,6 +287,6 @@ class DramaController extends Controller
         $drama = Drama::with('pengguna')->where('slug', $slug)->firstOrFail();
         $dramas = Drama::with('pengguna')->latest()->take(3)->get();
         
-        return view('DetailDrama', compact('drama', 'dramas'));
+        return view('dashboard.DetailDrama', compact('drama', 'dramas'));
     }
 }

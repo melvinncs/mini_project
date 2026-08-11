@@ -200,4 +200,13 @@ class ArtikelController extends Controller
         
         return view('DetailArtikel', compact('artikel', 'artikels'));
     }
+
+    public function publicIndex()
+    {
+        $artikels = Artikel::with('pengguna')
+            ->latest('diterbitkan_pada')
+            ->paginate(12); // 12 artikel per halaman
+            
+        return view('artikel', compact('artikels'));
+    }
 }

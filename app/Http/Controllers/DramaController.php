@@ -276,7 +276,7 @@ class DramaController extends Controller
     {
         $dramas = Drama::with('pengguna')
             ->latest('diterbitkan_pada')
-            ->get(); 
+            ->paginate(12); 
 
         return view('drama', compact('dramas'));
     }

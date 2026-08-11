@@ -11,6 +11,7 @@ use App\Http\Controllers\DramaController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/drama', [DramaController::class, 'publicIndex'])->name('drama');
+Route::get('/artikel', [ArtikelController::class, 'publicIndex'])->name('artikel');
 
 // Route::get('/', function () {
 //     return view('home');
@@ -85,3 +86,4 @@ Route::prefix('dashboard/users')->name('dashboard.users.')->group(function () {
 });
 
 Route::get('/artikel/{slug}', [ArtikelController::class, 'showPublic'])->name('artikel.detail');
+Route::get('/drama/{slug}', [DramaController::class, 'showPublic'])->name('drama.detail');

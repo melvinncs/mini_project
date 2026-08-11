@@ -13,10 +13,12 @@ class HomeController extends Controller
         $artikels = Artikel::with('pengguna')
             ->whereNotNull('diterbitkan_pada')
             ->latest('diterbitkan_pada')
+            ->take(3)
             ->get();
 
         $dramas = Drama::with('pengguna')
             ->latest('diterbitkan_pada')
+            ->take(3)
             ->get();
 
         return view('home', compact('artikels', 'dramas'));

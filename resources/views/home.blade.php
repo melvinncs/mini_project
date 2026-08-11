@@ -45,9 +45,9 @@
     <!-- DRAMA -->
     <section class="section" id="drama">
         <div class="section-header">
-            <span class="tag">🔥 Trending Now</span>
-            <h2>Drama <span class="highlight">Populer</span></h2>
-            <p>Drama Korea terbaik pilihan pengguna dengan rating tertinggi</p>
+            <span class="tag">Trending Now</span>
+            <h2>Drama <span class="highlight">Terbaru</span></h2>
+            <p>Drama Korea terbaru yang sedang populer</p>
         </div>
 
         <!-- Filter Drama -->
@@ -103,11 +103,11 @@
                         <h3>{{ $drama->judul }}</h3>
                         
                         <div class="meta">
-                            <span>📅 {{ $drama->tahun ?? 'N/A' }}</span>
+                            <span> {{ $drama->tahun ?? 'N/A' }}</span>
                             <span>•</span>
-                            <span class="rating">⭐ {{ $drama->rating ?? 'N/A' }}</span>
+                            <span class="rating"> {{ $drama->rating ?? 'N/A' }}</span>
                             <span>•</span>
-                            <span>📺 {{ $drama->episode ?? 0 }} Ep</span>
+                            <span> {{ $drama->episode ?? 0 }} Ep</span>
                         </div>
                         
                         @if($drama->genre)
@@ -131,8 +131,8 @@
                         @endif
                         
                         <div class="episode-info">
-                            <span>📺 {{ $drama->episode ?? 0 }} Episode</span>
-                            <span>⭐ {{ $drama->rating ?? 'N/A' }}/10</span>
+                            <span> {{ $drama->episode ?? 0 }} Episode</span>
+                            <span> {{ $drama->rating ?? 'N/A' }}/10</span>
                         </div>
                     </div>
                 </div>
@@ -151,7 +151,7 @@
     <!-- ARTIKEL -->
     <section class="section" id="artikel">
         <div class="section-header">
-            <span class="tag">📰 Terbaru</span>
+            <span class="tag"> Terbaru</span>
             <h2>Artikel <span class="highlight">Drama Korea</span></h2>
             <p>Berita, review, dan informasi menarik seputar drama Korea</p>
         </div>
@@ -173,7 +173,7 @@
         </div>
 
         <div class="article-grid" id="articleGrid">
-            @forelse($artikels ?? [] as $artikel)
+            @forelse($artikels as $artikel)
                 <div class="article-card">
                     <img class="thumb"
                         src="{{ $artikel->thumbnail ? asset($artikel->thumbnail) : asset('images/default-article.jpg') }}"
@@ -196,7 +196,7 @@
                 </div>
             @empty
                 <div class="no-articles">
-                    <p>Belum ada artikel. Silakan buat artikel di dashboard.</p>
+                    <p>Belum ada artikel.</p>
                 </div>
             @endforelse
         </div>

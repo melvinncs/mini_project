@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DramaController;
+use App\Http\Controllers\LandingPageController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/drama', [DramaController::class, 'publicIndex'])->name('drama');
@@ -53,6 +54,10 @@ Route::prefix('dashboard')->group(function () {
     Route::get('/drama/{id}/edit', [DramaController::class, 'edit'])->name('dashboard.drama.edit');
     Route::put('/drama/{id}', [DramaController::class, 'update'])->name('dashboard.drama.update');
     Route::delete('/drama/{id}', [DramaController::class, 'destroy'])->name('dashboard.drama.delete');
+
+    // dashboard landing page
+    Route::get('/landing-page', [LandingPageController::class, 'edit'])->name('dashboard.landing-page');
+    Route::put('/landing-page', [LandingPageController::class, 'update'])->name('dashboard.landing-page.update');
 });
 // Route::get('/dashboard/users', [DashboardController::class, 'manageUsers'])->name('dashboard.users');
 // Route::post('/dashboard/users/{id}/role', [DashboardController::class, 'changeRole'])->name('dashboard.users.role');

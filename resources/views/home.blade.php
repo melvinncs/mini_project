@@ -6,37 +6,28 @@
         <div class="hero-content">
             <div class="hero-text">
                 <div class="hero-badges">
-                    <span class="hero-badge">
-                        <span class="dot"></span> #1 Drama Korea
-                    </span>
-                    <span class="hero-badge">⭐ 4.8/5 Rating</span>
-                    <span class="hero-badge">🔥 500+ Drama</span>
+                    <span class="hero-badge"><span class="dot"></span> {{ $landing->hero_badge_1 }}</span>
+                    <span class="hero-badge">{{ $landing->hero_badge_2 }}</span>
+                    <span class="hero-badge">{{ $landing->hero_badge_3 }}</span>
                 </div>
 
                 <h1>
-                    Portal <span class="highlight">Drama Korea</span><br>
-                    Terlengkap & Terupdate
+                    {{ $landing->hero_title_line1 }} <span class="highlight">{{ $landing->hero_title_highlight }}</span><br>
+                    {{ $landing->hero_title_line2 }}
                 </h1>
 
-                <p>
-                    Temukan informasi drama terbaru, drama populer, detail pemeran,
-                    genre, rating, dan episode. Semua dalam satu platform.
-                </p>
+                <p>{{ $landing->hero_description }}</p>
 
                 <div class="hero-cta">
-                    <a href="#drama" class="btn-primary">
-                        Jelajahi Drama →
-                    </a>
-                    <a href="#artikel" class="btn-secondary">
-                        Baca Artikel
-                    </a>
+                    <a href="#drama" class="btn-primary">{{ $landing->hero_btn_primary_text }}</a>
+                    <a href="#artikel" class="btn-secondary">{{ $landing->hero_btn_secondary_text }}</a>
                 </div>
             </div>
 
             <div class="hero-image">
                 <div class="hero-image-wrapper">
                     <div class="circle-bg"></div>
-                    <img src="{{ asset('image/home.png') }}" alt="K-DramaHub Hero" loading="lazy">
+                    <img src="{{ $landing->hero_image ? asset($landing->hero_image) : asset('image/home.png') }}" alt="{{ $landing->footer_brand_name }} Hero" loading="lazy">
                 </div>
             </div>
         </div>
@@ -45,9 +36,9 @@
     <!-- DRAMA -->
     <section class="section" id="drama">
         <div class="section-header">
-            <span class="tag">Trending Now</span>
-            <h2>Drama <span class="highlight">Terbaru</span></h2>
-            <p>Drama Korea terbaru yang sedang populer</p>
+            <span class="tag">{{ $landing->drama_tag }}</span>
+            <h2>{{ $landing->drama_title }}</h2>
+            <p>{{ $landing->drama_desc }}</p>
         </div>
 
         <!-- Filter Drama -->
@@ -148,9 +139,9 @@
     <!-- ARTIKEL -->
     <section class="section" id="artikel">
         <div class="section-header">
-            <span class="tag"> Terbaru</span>
-            <h2>Artikel <span class="highlight">Drama Korea</span></h2>
-            <p>Berita, review, dan informasi menarik seputar drama Korea</p>
+            <span class="tag">{{ $landing->artikel_tag }}</span>
+            <h2>{{ $landing->artikel_title }}</h2>
+            <p>{{ $landing->artikel_desc }}</p>
         </div>
 
         <!-- Filter Artikel -->

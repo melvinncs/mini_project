@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Artikel;
 use App\Models\Drama;
+use App\Models\LandingPage;
 
 class HomeController extends Controller
 {
@@ -15,16 +16,8 @@ class HomeController extends Controller
             'Animasi' => ['Animasi', 'Animation'],
             'Komedi' => ['Komedi', 'Comedy'],
             'Kejahatan' => ['Kejahatan', 'Crime'],
-            'Dokumenter' => ['Dokumenter', 'Documentary'],
             'Drama' => ['Drama'],
-            'Keluarga' => ['Keluarga', 'Family'],
             'Misteri' => ['Misteri', 'Mystery'],
-            'Realitas' => ['Realitas', 'Reality'],
-            'Fiksi Ilmiah & Fantasi' => ['Fiksi Ilmiah & Fantasi', 'Sci-Fi & Fantasy', 'Science Fiction & Fantasy', 'Sci-Fi', 'Fantasy'],
-            'Sinetron' => ['Sinetron', 'Soap'],
-            'Bincang-bincang' => ['Bincang-bincang', 'Talk'],
-            'Perang & Politik' => ['Perang & Politik', 'War & Politics'],
-            'Western' => ['Western'],
             'Romantis' => ['Romantis', 'Romance'],
         ];
 
@@ -60,6 +53,8 @@ class HomeController extends Controller
             ->take(3)
             ->get();
 
-        return view('home', compact('artikels', 'dramas'));
+        $landing = LandingPage::current();
+
+        return view('home', compact('artikels', 'dramas', 'landing'));
     }
 }

@@ -61,6 +61,9 @@
                     <i class="fas fa-users-cog"></i>
                     <span>Manajemen Akun</span>
                 </a>
+                <a href="{{ route('dashboard.landing-page') }}" class="sidebar-link {{ request()->routeIs('dashboard.landing-page') ? 'active' : '' }}">
+                    <i class="fa fa-edit"></i> <span>Landing Page</span>
+                </a>
                 @endif
             </nav>
             

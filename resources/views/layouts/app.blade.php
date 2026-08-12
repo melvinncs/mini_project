@@ -89,10 +89,10 @@
                         font-weight: 900;
                         color: white;
                         box-shadow: var(--shadow-glow);
-                    ">KD</div>
-                    <span style="font-size: 22px; font-weight: 900; background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">K-DramaHub</span>
+                    ">{{ $landing->footer_brand_short }}</div>
+                    <span style="font-size: 22px; font-weight: 900; background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ $landing->footer_brand_name }}</span>
                 </div>
-                <p>Portal informasi drama Korea terlengkap. Temukan drama terbaru, populer, detail pemeran, genre, rating, dan episode.</p>
+                <p>{{ $landing->footer_description }}</p>
                 <div class="footer-social">
                     <a href="#"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-twitter"></i></a>

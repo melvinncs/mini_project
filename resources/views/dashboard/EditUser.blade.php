@@ -13,11 +13,11 @@
             $isSelf = $pengguna && $user->id === (is_array($pengguna) ? $pengguna['id'] : $pengguna->id);
         @endphp
 
-        @if($isSelf)
+        <!-- @if($isSelf)
             <div class="alert alert-info">
                 <i class="fas fa-info-circle"></i> Anda sedang mengedit akun sendiri. Role tidak dapat diubah.
             </div>
-        @endif
+        @endif -->
 
         <form action="{{ route('dashboard.users.update', $user->id) }}" method="POST">
             @csrf

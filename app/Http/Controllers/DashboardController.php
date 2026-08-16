@@ -92,9 +92,9 @@ class DashboardController extends Controller
 
         $user = Pengguna::findOrFail($id);
 
-        if ($user->id == $pengguna->id) {
-            return back()->with('error', 'Tidak dapat mengubah role sendiri!');
-        }
+        // if ($user->id == $pengguna->id) {
+        //     return back()->with('error', 'Tidak dapat mengubah role sendiri!');
+        // }
 
         $user->role = $request->role;
         $user->save();

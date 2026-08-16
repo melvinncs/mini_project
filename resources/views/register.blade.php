@@ -82,10 +82,10 @@
                     </div>
                 </div>
 
-                <div class="terms">
+                <!-- <div class="terms">
                     <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms">Saya menyetujui <a href="#">Syarat & Ketentuan</a> dan <a href="#">Kebijakan Privasi</a></label>
-                </div>
+                </div> -->
 
                 <button type="submit" class="btn-submit">Daftar Sekarang</button>
             </form>

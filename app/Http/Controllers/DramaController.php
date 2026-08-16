@@ -151,7 +151,7 @@ class DramaController extends Controller
                 ->withInput();
         }
 
-        // PASTIKAN DIREKTORI ADA
+        // pastikan direktori ada
         $uploadPath = public_path('uploads/drama');
         if (!file_exists($uploadPath)) {
             mkdir($uploadPath, 0755, true);

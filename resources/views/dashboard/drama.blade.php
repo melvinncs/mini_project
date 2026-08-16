@@ -31,7 +31,7 @@
                 <tbody>
                     @foreach($dramas as $index => $drama)
                     <tr>
-                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $dramas->firstItem() + $index }}</td>
                         <td>
                             @if($drama->thumbnail)
                             <img src="{{ asset($drama->thumbnail) }}" alt="Thumbnail" style="width: 60px; height: 80px; object-fit: cover; border-radius: 8px;">
@@ -56,7 +56,6 @@
                             <a href="{{ route('dashboard.drama.show', $drama->slug) }}" class="btn-sm btn-info">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <!-- Semua aksi tersedia untuk admin -->
                             <a href="{{ route('dashboard.drama.edit', $drama->id) }}" class="btn-sm btn-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -74,12 +73,66 @@
                 </tbody>
             </table>
         </div>
-        <div class="pagination-wrapper">
-            {{ $dramas->links() }}
+        
+        <!-- Pagination -->
+        <div class="pagination-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 10px;">
+            <div class="pagination-info">
+                <span style="color: #6B7280; font-size: 14px;">
+                    Showing {{ $dramas->firstItem() }} to {{ $dramas->lastItem() }} of {{ $dramas->total() }} results
+                </span>
+            </div>
+            <div class="pagination-links" style="display: flex; align-items: center; gap: 5px;">
+                @if ($dramas->onFirstPage())
+                    <span style="padding: 8px 12px; background: #E5E7EB; color: #9CA3AF; border-radius: 6px; cursor: not-allowed; font-size: 14px;">« Previous</span>
+                @else
+                    <a href="{{ $dramas->previousPageUrl() }}" style="padding: 8px 12px; background: #F3F4F6; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; transition: all 0.2s;">« Previous</a>
+                @endif
+                
+                @php
+                    $currentPage = $dramas->currentPage();
+                    $lastPage = $dramas->lastPage();
+                    $start = max(1, $currentPage - 2);
+                    $end = min($lastPage, $currentPage + 2);
+                @endphp
+                
+                @if ($start > 1)
+                    <a href="{{ $dramas->url(1) }}" style="padding: 8px 12px; background: #F3F4F6; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; transition: all 0.2px;">1</a>
+                    @if ($start > 2)
+                        <span style="padding: 8px 4px; color: #9CA3AF;">...</span>
+                    @endif
+                @endif
+                
+                @for ($i = $start; $i <= $end; $i++)
+                    @if ($i == $currentPage)
+                        <span style="padding: 8px 12px; background: #4F46E5; color: white; border-radius: 6px; font-size: 14px; font-weight: 600;">{{ $i }}</span>
+                    @else
+                        <a href="{{ $dramas->url($i) }}" style="padding: 8px 12px; background: #F3F4F6; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; transition: all 0.2s;">{{ $i }}</a>
+                    @endif
+                @endfor
+                
+                @if ($end < $lastPage)
+                    @if ($end < $lastPage - 1)
+                        <span style="padding: 8px 4px; color: #9CA3AF;">...</span>
+                    @endif
+                    <a href="{{ $dramas->url($lastPage) }}" style="padding: 8px 12px; background: #F3F4F6; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; transition: all 0.2s;">{{ $lastPage }}</a>
+                @endif
+                
+                @if ($dramas->hasMorePages())
+                    <a href="{{ $dramas->nextPageUrl() }}" style="padding: 8px 12px; background: #F3F4F6; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; transition: all 0.2s;">Next »</a>
+                @else
+                    <span style="padding: 8px 12px; background: #E5E7EB; color: #9CA3AF; border-radius: 6px; cursor: not-allowed; font-size: 14px;">Next »</span>
+                @endif
+            </div>
         </div>
         @else
         <p class="text-center">Belum ada drama. <a href="{{ route('dashboard.drama.create') }}">Tambah drama sekarang</a></p>
         @endif
     </div>
 </div>
+
+<style>
+.pagination-links a:hover {
+    background: #E5E7EB !important;
+}
+</style>
 @endsection

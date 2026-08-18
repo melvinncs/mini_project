@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Artikel;
 use App\Models\Pengguna;
@@ -11,11 +12,7 @@ class ArtikelController extends Controller
 {
     public function index()
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-        
-        if (!$pengguna) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
-        }
+        $pengguna = Auth::user();
 
         if ($pengguna->role === 'admin') {
             $artikels = Artikel::with('pengguna')->latest()->paginate(10);
@@ -23,7 +20,6 @@ class ArtikelController extends Controller
             $artikels = Artikel::where('id_pengguna', $pengguna->id)->with('pengguna')->latest()->paginate(10);
         }
 
-        // Kirim $pengguna ke view
         return view('dashboard.artikel', [
             'artikels' => $artikels,
             'pengguna' => $pengguna
@@ -32,22 +28,14 @@ class ArtikelController extends Controller
 
     public function create()
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-        
-        if (!$pengguna) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
-        }
-
+        $pengguna = Auth::user();
+        // Ubah dari user.TambahArtikel menjadi dashboard.TambahArtikel
         return view('dashboard.TambahArtikel', ['pengguna' => $pengguna]);
     }
 
     public function store(Request $request)
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-
-        if (!$pengguna) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
-        }
+        $pengguna = Auth::user();
 
         $request->validate([
             'judul' => 'required|string|max:255',
@@ -75,25 +63,22 @@ class ArtikelController extends Controller
             'diterbitkan_pada' => now(),
         ]);
 
-        return redirect()
-            ->route('dashboard.artikel')
-            ->with('success', 'Artikel berhasil dipublikasikan.');
+        // Tentukan route berdasarkan role
+        $route = $pengguna->role === 'admin' ? 'admin.artikel' : 'user.artikel';
+        return redirect()->route($route)->with('success', 'Artikel berhasil dipublikasikan.');
     }
 
     public function edit($id)
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-        
-        if (!$pengguna) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
-        }
-
+        $pengguna = Auth::user();
         $artikel = Artikel::findOrFail($id);
-        
+
         if ($pengguna->role !== 'admin' && $artikel->id_pengguna !== $pengguna->id) {
-            return redirect()->route('dashboard.artikel')->with('error', 'Anda tidak memiliki akses untuk mengedit artikel ini!');
+            $route = $pengguna->role === 'admin' ? 'admin.artikel' : 'user.artikel';
+            return redirect()->route($route)->with('error', 'Anda tidak memiliki akses untuk mengedit artikel ini!');
         }
 
+        // Ubah dari user.EditArtikel menjadi dashboard.EditArtikel
         return view('dashboard.EditArtikel', [
             'artikel' => $artikel,
             'pengguna' => $pengguna
@@ -102,16 +87,12 @@ class ArtikelController extends Controller
 
     public function update(Request $request, $id)
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-        
-        if (!$pengguna) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
-        }
-
+        $pengguna = Auth::user();
         $artikel = Artikel::findOrFail($id);
-        
+
         if ($pengguna->role !== 'admin' && $artikel->id_pengguna !== $pengguna->id) {
-            return redirect()->route('dashboard.artikel')->with('error', 'Anda tidak memiliki akses untuk mengedit artikel ini!');
+            $route = $pengguna->role === 'admin' ? 'admin.artikel' : 'user.artikel';
+            return redirect()->route($route)->with('error', 'Anda tidak memiliki akses untuk mengedit artikel ini!');
         }
 
         $request->validate([
@@ -125,7 +106,7 @@ class ArtikelController extends Controller
             $slug = Str::slug($request->judul);
             $originalSlug = $slug;
             $counter = 1;
-            
+
             while (Artikel::where('slug', $slug)->where('id', '!=', $id)->exists()) {
                 $slug = $originalSlug . '-' . $counter;
                 $counter++;
@@ -137,7 +118,7 @@ class ArtikelController extends Controller
             if ($artikel->thumbnail && file_exists(public_path($artikel->thumbnail))) {
                 unlink(public_path($artikel->thumbnail));
             }
-            
+
             $file = $request->file('thumbnail');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/thumbnails'), $filename);
@@ -149,21 +130,18 @@ class ArtikelController extends Controller
         $artikel->isi = $request->isi;
         $artikel->save();
 
-        return redirect()->route('dashboard.artikel')->with('success', 'Artikel berhasil diperbarui!');
+        $route = $pengguna->role === 'admin' ? 'admin.artikel' : 'user.artikel';
+        return redirect()->route($route)->with('success', 'Artikel berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-        
-        if (!$pengguna) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
-        }
-
+        $pengguna = Auth::user();
         $artikel = Artikel::findOrFail($id);
-        
+
         if ($pengguna->role !== 'admin' && $artikel->id_pengguna !== $pengguna->id) {
-            return redirect()->route('dashboard.artikel')->with('error', 'Anda tidak memiliki akses untuk menghapus artikel ini!');
+            $route = $pengguna->role === 'admin' ? 'admin.artikel' : 'user.artikel';
+            return redirect()->route($route)->with('error', 'Anda tidak memiliki akses untuk menghapus artikel ini!');
         }
 
         if ($artikel->thumbnail && file_exists(public_path($artikel->thumbnail))) {
@@ -172,21 +150,18 @@ class ArtikelController extends Controller
 
         $artikel->delete();
 
-        return redirect()->route('dashboard.artikel')->with('success', 'Artikel berhasil dihapus!');
+        $route = $pengguna->role === 'admin' ? 'admin.artikel' : 'user.artikel';
+        return redirect()->route($route)->with('success', 'Artikel berhasil dihapus!');
     }
 
     public function show($slug)
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-
-        if (!$pengguna) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
-        }
-
+        $pengguna = Auth::user();
         $artikel = Artikel::with('pengguna')->where('slug', $slug)->firstOrFail();
 
         if ($pengguna->role !== 'admin' && $artikel->id_pengguna !== $pengguna->id) {
-            return redirect()->route('dashboard.artikel')->with('error', 'Anda tidak memiliki akses untuk melihat artikel ini!');
+            $route = $pengguna->role === 'admin' ? 'admin.artikel' : 'user.artikel';
+            return redirect()->route($route)->with('error', 'Anda tidak memiliki akses untuk melihat artikel ini!');
         }
 
         return view('dashboard.DetailArtikel', [
@@ -199,7 +174,7 @@ class ArtikelController extends Controller
     {
         $artikel = Artikel::with('pengguna')->where('slug', $slug)->firstOrFail();
         $artikels = Artikel::with('pengguna')->latest()->take(3)->get();
-        
+
         return view('dashboard.DetailArtikel', compact('artikel', 'artikels'));
     }
 
@@ -209,7 +184,7 @@ class ArtikelController extends Controller
             ->latest('diterbitkan_pada')
             ->paginate(12)
             ->withQueryString();
-            
+
         return view('artikel', compact('artikels'));
     }
 }

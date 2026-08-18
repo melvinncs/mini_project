@@ -7,7 +7,8 @@
     <div class="card-header">
         <h3>Daftar Pengguna</h3>
         <div class="card-header-actions">
-            <a href="{{ route('dashboard.users.create') }}" class="btn-primary">
+            {{-- Ganti dashboard.users.create menjadi admin.users.create --}}
+            <a href="{{ route('admin.users.create') }}" class="btn-primary">
                 <i class="fas fa-plus"></i> Tambah Akun
             </a>
         </div>
@@ -43,14 +44,14 @@
                                 $isSelf = $pengguna && $user->id === (is_array($pengguna) ? $pengguna['id'] : $pengguna->id);
                             @endphp
                             
-                            <!-- Edit User - Tampilkan untuk semua user -->
-                            <a href="{{ route('dashboard.users.edit', $user->id) }}" class="btn-sm btn-warning">
+                            {{-- Ganti dashboard.users.edit menjadi admin.users.edit --}}
+                            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn-sm btn-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
                             
                             @if(!$isSelf)
-                                <!-- Delete User - Hanya untuk user lain -->
-                                <form action="{{ route('dashboard.users.delete', $user->id) }}" method="POST" style="display:inline;">
+                                {{-- Ganti dashboard.users.delete menjadi admin.users.delete --}}
+                                <form action="{{ route('admin.users.delete', $user->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus user ini?')">

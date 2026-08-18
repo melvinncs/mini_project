@@ -6,7 +6,7 @@
 <div class="card">
     <div class="card-header">
         <h3>Daftar Drama</h3>
-        <a href="{{ route('dashboard.drama.create') }}" class="btn-primary">
+        <a href="{{ route('admin.drama.create') }}" class="btn-primary">  <!-- Ganti ke admin -->
             <i class="fas fa-plus"></i> Tambah Drama
         </a>
     </div>
@@ -53,13 +53,13 @@
                         </td>
                         <td>{{ $drama->pengguna->nama }}</td>
                         <td>
-                            <a href="{{ route('dashboard.drama.show', $drama->slug) }}" class="btn-sm btn-info">
+                            <a href="{{ route('admin.drama.show', $drama->slug) }}" class="btn-sm btn-info">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('dashboard.drama.edit', $drama->id) }}" class="btn-sm btn-warning">
+                            <a href="{{ route('admin.drama.edit', $drama->id) }}" class="btn-sm btn-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form action="{{ route('dashboard.drama.delete', $drama->id) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('admin.drama.delete', $drama->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-sm btn-danger"
@@ -125,7 +125,7 @@
             </div>
         </div>
         @else
-        <p class="text-center">Belum ada drama. <a href="{{ route('dashboard.drama.create') }}">Tambah drama sekarang</a></p>
+        <p class="text-center">Belum ada drama. <a href="{{ route('admin.drama.create') }}">Tambah drama sekarang</a></p>  <!-- Ganti ke admin -->
         @endif
     </div>
 </div>

@@ -1,4 +1,4 @@
-{{-- resources/views/dashboard/artikel-edit.blade.php --}}
+{{-- resources/views/dashboard/EditArtikel.blade.php --}}
 @extends('dashboard.layout')
 
 @section('title', 'Edit Artikel')
@@ -9,12 +9,18 @@
         <h3>Edit Artikel</h3>
     </div>
     <div class="card-body">
-        <form action="{{ route('dashboard.artikel.update', $artikel->id) }}" method="POST" enctype="multipart/form-data">
+        @php
+            $pengguna = Auth::user();
+            $routePrefix = $pengguna->role === 'admin' ? 'admin' : 'user';
+        @endphp
+        
+        {{-- Ganti dashboard.artikel.update menjadi dynamic route --}}
+        <form action="{{ route($routePrefix . '.artikel.update', $artikel->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="form-group">
                 <label for="judul">Judul</label>
-                <input type="text" id="judul" name="judul" class="form-control" value="{{ $artikel->judul }}" required>
+                <input type="text" id="judul" name="judul" class="form-control" value="{{ old('judul', $artikel->judul) }}" required>
                 @error('judul')
                     <span class="error-text">{{ $message }}</span>
                 @enderror
@@ -54,14 +60,15 @@
 
             <div class="form-group">
                 <label for="isi">Konten</label>
-                <textarea id="isi" name="isi" class="form-control" rows="10" required>{{ $artikel->isi }}</textarea>
+                <textarea id="isi" name="isi" class="form-control" rows="10" required>{{ old('isi', $artikel->isi) }}</textarea>
                 @error('isi')
                     <span class="error-text">{{ $message }}</span>
                 @enderror
             </div>
 
             <div class="form-actions">
-                <a href="{{ route('dashboard.artikel') }}" class="btn-secondary">Batal</a>
+                {{-- Ganti dashboard.artikel menjadi dynamic route --}}
+                <a href="{{ route($routePrefix . '.artikel') }}" class="btn-secondary">Batal</a>
                 <button type="submit" class="btn-primary">Update Artikel</button>
             </div>
         </form>

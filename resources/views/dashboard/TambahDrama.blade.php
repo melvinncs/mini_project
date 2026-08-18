@@ -1,6 +1,6 @@
 @extends('dashboard.layout')
 
-@section('title', 'Tambah Drama')
+@section('title', 'Tambah Drama Baru')
 
 @section('content')
 <div class="card">
@@ -8,7 +8,7 @@
         <h3>Tambah Drama Baru</h3>
     </div>
     <div class="card-body">
-        <form action="{{ route('dashboard.drama.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.drama.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group" style="position: relative;">
                 <label for="cari_drama">Cari Judul K-Drama</label>
@@ -20,36 +20,37 @@
             <input type="hidden" id="tmdb_poster_url" name="tmdb_poster_url">
 
             <div class="form-group">
+                <label for="judul_display">Judul</label>
+                <input type="text" id="judul_display" class="form-control" placeholder="Judul akan muncul setelah mencari" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="pemeran_utama">Pemeran Utama</label>
+                <input type="text" id="pemeran_utama" name="pemeran_utama" class="form-control" placeholder="Contoh: Hyun Bin, Son Ye-jin">
+            </div>
+
+            <div class="form-group">
+                <label for="sinopsis">Sinopsis</label>
+                <textarea id="sinopsis" name="sinopsis" class="form-control" rows="4" placeholder="Sinopsis akan muncul setelah mencari"></textarea>
+            </div>
+
+            <div class="form-group">
                 <label for="genre">Genre</label>
-                <input type="text" id="genre" name="genre" class="form-control" placeholder="Contoh: Romance, Comedy, Thriller" value="{{ old('genre') }}">
-                @error('genre')
-                    <span class="error-text">{{ $message }}</span>
-                @enderror
+                <input type="text" id="genre" name="genre" class="form-control" placeholder="Contoh: Romantis, Komedi, Thriller">
             </div>
 
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                 <div class="form-group">
                     <label for="tahun">Tahun</label>
-                    <input type="number" id="tahun" name="tahun" class="form-control" placeholder="2024" value="{{ old('tahun') }}" min="1900" max="{{ date('Y') }}">
-                    @error('tahun')
-                        <span class="error-text">{{ $message }}</span>
-                    @enderror
+                    <input type="number" id="tahun" name="tahun" class="form-control" placeholder="2024">
                 </div>
-
                 <div class="form-group">
-                    <label for="episode">Jumlah Episode</label>
-                    <input type="number" id="episode" name="episode" class="form-control" placeholder="16" value="{{ old('episode') }}" min="1">
-                    @error('episode')
-                        <span class="error-text">{{ $message }}</span>
-                    @enderror
+                    <label for="episode">Episode</label>
+                    <input type="number" id="episode" name="episode" class="form-control" placeholder="16">
                 </div>
-
                 <div class="form-group">
                     <label for="rating">Rating</label>
-                    <input type="text" id="rating" name="rating" class="form-control" placeholder="8.5" value="{{ old('rating') }}">
-                    @error('rating')
-                        <span class="error-text">{{ $message }}</span>
-                    @enderror
+                    <input type="number" id="rating" name="rating" class="form-control" placeholder="8.5" step="0.1">
                 </div>
             </div>
 
@@ -59,154 +60,180 @@
                     <option value="Ongoing">Ongoing</option>
                     <option value="Completed">Completed</option>
                     <option value="Upcoming">Upcoming</option>
-                    <option value="On Hold">On Hold</option>
                 </select>
-                @error('status')
-                    <span class="error-text">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="pemeran_utama">Pemeran Utama</label>
-                <input type="text" id="pemeran_utama" name="pemeran_utama" class="form-control" placeholder="Contoh: Kim Soo-hyun, Kim Ji-won" value="{{ old('pemeran_utama') }}">
-                @error('pemeran_utama')
-                    <span class="error-text">{{ $message }}</span>
-                @enderror
             </div>
 
             <div class="form-group">
                 <label for="thumbnail">Thumbnail</label>
                 <input type="file" id="thumbnail" name="thumbnail" class="form-control" accept="image/*">
-                <small class="text-muted">Format: JPG, JPEG, PNG (Max 2MB)</small>
-                @error('thumbnail')
-                    <span class="error-text">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="sinopsis">Sinopsis</label>
-                <textarea id="sinopsis" name="sinopsis" class="form-control" rows="8" placeholder="Tulis sinopsis drama di sini...">{{ old('sinopsis') }}</textarea>
-                @error('sinopsis')
-                    <span class="error-text">{{ $message }}</span>
-                @enderror
+                <div id="thumbnail_preview" style="margin-top: 10px;"></div>
             </div>
 
             <div class="form-actions">
-                <a href="{{ route('dashboard.drama') }}" class="btn-secondary">Batal</a>
+                <a href="{{ route('admin.drama') }}" class="btn-secondary">Batal</a>
                 <button type="submit" class="btn-primary">Simpan Drama</button>
             </div>
         </form>
     </div>
 </div>
 
+@push('scripts')
 <script>
-(function () {
-    const inputCari = document.getElementById('cari_drama');
-    const kotakHasil = document.getElementById('hasil_pencarian');
-    let waktuTunggu;
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('cari_drama');
+    const resultsDiv = document.getElementById('hasil_pencarian');
+    const judulHidden = document.getElementById('judul');
+    const judulDisplay = document.getElementById('judul_display');
+    const sinopsisTextarea = document.getElementById('sinopsis');
+    const genreInput = document.getElementById('genre');
+    const tahunInput = document.getElementById('tahun');
+    const episodeInput = document.getElementById('episode');
+    const ratingInput = document.getElementById('rating');
+    const pemeranInput = document.getElementById('pemeran_utama');
+    const posterUrlHidden = document.getElementById('tmdb_poster_url');
+    const thumbnailPreview = document.getElementById('thumbnail_preview');
 
-    inputCari.addEventListener('input', function () {
-        clearTimeout(waktuTunggu);
-        const kataKunci = this.value.trim();
+    let searchTimeout;
 
-        if (kataKunci.length < 2) {
-            kotakHasil.style.display = 'none';
+    // Event listener untuk input pencarian
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            resultsDiv.style.display = 'none';
             return;
         }
 
-        waktuTunggu = setTimeout(() => {
-            fetch(`{{ route('dashboard.drama.cari') }}?query=${encodeURIComponent(kataKunci)}`)
-                .then(res => res.json())
-                .then(data => tampilkanHasil(data))
-                .catch(() => { kotakHasil.style.display = 'none'; });
-        }, 400);
+        searchTimeout = setTimeout(() => {
+            searchDramas(query);
+        }, 500);
     });
 
-    function tampilkanHasil(data) {
-        if (!data.length) {
-            kotakHasil.innerHTML = '<div style="padding:12px; color:#A1A1AA;">Tidak ditemukan</div>';
-            kotakHasil.style.display = 'block';
-            return;
+    // Fungsi untuk mencari drama dari TMDB
+    async function searchDramas(query) {
+        try {
+            const response = await fetch(`/admin/drama/cari?q=${encodeURIComponent(query)}`);
+            const json = await response.json();
+
+            if (json.success && json.data.length > 0) {
+                renderResults(json.data);
+            } else {
+                resultsDiv.innerHTML = `<div style="padding: 12px; color: #6B7280;">Tidak ada hasil ditemukan</div>`;
+                resultsDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error searching dramas:', error);
+            resultsDiv.innerHTML = `<div style="padding: 12px; color: #EF4444;">Terjadi kesalahan saat mencari drama</div>`;
+            resultsDiv.style.display = 'block';
         }
+    }
 
-        kotakHasil.innerHTML = data.map(item => `
-            <div class="item-hasil" data-id="${item.id}" style="display:flex; gap:10px; padding:8px 12px; cursor:pointer; align-items:center; border-bottom:1px solid #F4F4F5;">
-                <img src="${item.poster ?? ''}" onerror="this.style.display='none'" style="width:36px; height:52px; object-fit:cover; border-radius:4px; background:#E4E4E7;">
-                <div>
-                    <div style="font-weight:600;">${item.judul}</div>
-                    <div style="font-size:12px; color:#A1A1AA;">${item.tahun || '-'}</div>
+    // Fungsi untuk menampilkan hasil pencarian
+    function renderResults(dramas) {
+        let html = '';
+        dramas.forEach(drama => {
+            html += `
+                <div class="result-item" data-id="${drama.id}" style="display:flex; gap:10px; padding:8px 12px; cursor:pointer; align-items:center; border-bottom:1px solid #F4F4F5;">
+                    ${drama.poster ? `<img src="${drama.poster}" alt="${drama.judul}" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;">` : ''}
+                    <div>
+                        <div style="font-weight: 600;">${drama.judul}</div>
+                        <div style="font-size: 12px; color: #6B7280;">${drama.year || 'Tahun tidak tersedia'}</div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        });
+        
+        resultsDiv.innerHTML = html;
+        resultsDiv.style.display = 'block';
 
-        kotakHasil.style.display = 'block';
-
-        document.querySelectorAll('.item-hasil').forEach(el => {
-            el.addEventListener('click', function () {
-                ambilDetail(this.dataset.id);
-                kotakHasil.style.display = 'none';
+        document.querySelectorAll('.result-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const id = this.dataset.id;
+                fetchDramaDetail(id);
             });
-            el.addEventListener('mouseenter', function () { this.style.background = '#F8F8FA'; });
-            el.addEventListener('mouseleave', function () { this.style.background = ''; });
+
+            item.addEventListener('mouseenter', function() {
+                this.style.background = '#F9FAFB';
+            });
+
+            item.addEventListener('mouseleave', function() {
+                this.style.background = 'transparent';
+            });
         });
     }
 
-    function ambilDetail(id) {
-        console.log('Mengambil detail untuk ID:', id);
+    // Fungsi untuk mengambil detail drama dari TMDB
+    async function fetchDramaDetail(id) {
+        try {
+            const response = await fetch(`/admin/drama/tmdb/${id}`);
+            const json = await response.json();
 
-        fetch(`/dashboard/drama/tmdb/${id}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`Server merespon status ${res.status}`);
+            if (json.success && json.data) {
+                const data = json.data;
+                judulHidden.value = data.judul;
+                judulDisplay.value = data.judul;
+                sinopsisTextarea.value = data.sinopsis || '';
+                genreInput.value = data.genre || '';
+                tahunInput.value = data.tahun || '';
+                episodeInput.value = data.episode || '';
+                ratingInput.value = data.rating || '';
+                pemeranInput.value = data.pemeran_utama || '';
+                posterUrlHidden.value = data.poster_url || '';
+                
+                if (data.poster_url) {
+                    thumbnailPreview.innerHTML = `
+                        <img src="${data.poster_url}" alt="Poster" style="border-radius: 8px; max-height: 200px; max-width: 100%;">
+                        <p class="text-muted" style="margin-top: 5px;">Poster dari TMDB</p>
+                    `;
+                } else {
+                    thumbnailPreview.innerHTML = '';
                 }
-                return res.json();
-            })
-            .then(data => {
-                console.log('Data diterima:', data);
 
-                if (data.error) {
-                    alert('Gagal ambil detail: ' + data.error);
-                    return;
-                }
-
-                // TAMBAHKAN INI: Set value ke hidden input judul
-                document.getElementById('judul').value = data.judul || '';
-                document.getElementById('genre').value = data.genre || '';
-                document.getElementById('tahun').value = data.tahun || '';
-                document.getElementById('episode').value = data.episode || '';
-                document.getElementById('rating').value = data.rating || '';
-                document.getElementById('sinopsis').value = data.sinopsis || '';
-                document.getElementById('pemeran_utama').value = data.pemeran_utama || '';
-                document.getElementById('tmdb_poster_url').value = data.poster_url || '';
-                inputCari.value = data.judul;
-
-                tampilkanPreviewThumbnail(data.poster_url);
-            })
-            .catch(err => {
-                console.error('Gagal mengambil detail drama:', err);
-                alert('Terjadi kesalahan saat mengambil detail drama. Cek console untuk detail.');
-            });
+                resultsDiv.style.display = 'none';
+                searchInput.value = data.judul;
+            }
+        } catch (error) {
+            console.error('Error fetching drama detail:', error);
+            resultsDiv.innerHTML = `<div style="padding: 12px; color: #EF4444;">Gagal mengambil detail drama</div>`;
+            resultsDiv.style.display = 'block';
+        }
     }
 
-    function tampilkanPreviewThumbnail(url) {
-        let previewLama = document.getElementById('preview_thumbnail_tmdb');
-        if (previewLama) previewLama.remove();
-
-        if (!url) return;
-
-        const groupThumbnail = document.getElementById('thumbnail').closest('.form-group');
-        const gambar = document.createElement('img');
-        gambar.id = 'preview_thumbnail_tmdb';
-        gambar.src = url;
-        gambar.style.cssText = 'width:120px; height:160px; object-fit:cover; border-radius:8px; margin-bottom:10px; display:block;';
-        groupThumbnail.insertBefore(gambar, groupThumbnail.firstChild.nextSibling);
-    }
-
-    document.addEventListener('click', function (e) {
-        if (!kotakHasil.contains(e.target) && e.target !== inputCari) {
-            kotakHasil.style.display = 'none';
+    // Tutup hasil pencarian saat klik di luar
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.form-group')) {
+            resultsDiv.style.display = 'none';
         }
     });
-})();
+
+    // Preview thumbnail manual
+    const thumbnailInput = document.getElementById('thumbnail');
+    thumbnailInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                thumbnailPreview.innerHTML = `
+                    <img src="${e.target.result}" alt="Thumbnail" style="border-radius: 8px; max-height: 200px; max-width: 100%;">
+                    <p class="text-muted" style="margin-top: 5px;">Thumbnail yang diupload</p>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+});
 </script>
+
+<style>
+.result-item:hover {
+    background: #F9FAFB !important;
+}
+
+.text-muted {
+    color: #6B7280;
+    font-size: 12px;
+}
+</style>
+@endpush
 @endsection

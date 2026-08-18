@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Pengguna;
 use App\Models\Artikel;
@@ -11,11 +12,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-
-        if (!$pengguna) {
-            return redirect()->route('login')
-                ->with('error', 'Silakan login terlebih dahulu');
+        $pengguna = Auth::user();
+        
+        if (!session()->has('pengguna')) {
+            session(['pengguna' => $pengguna]);
         }
 
         if ($pengguna->role === 'admin') {
@@ -63,39 +63,21 @@ class DashboardController extends Controller
             'artikels',
             'users',
             'admins',
-            'dramas' 
+            'dramas'
         ));
     }
 
     public function manageUsers()
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-
-        if (!$pengguna || $pengguna->role !== 'admin') {
-            return redirect()->route('dashboard')
-                ->with('error', 'Akses ditolak!');
-        }
-
         $users = Pengguna::all();
+        $pengguna = Pengguna::find(session('pengguna_id'));
 
         return view('dashboard.user', compact('users', 'pengguna'));
     }
 
     public function changeRole(Request $request, $id)
     {
-        $pengguna = Pengguna::find(session('pengguna_id'));
-
-        if (!$pengguna || $pengguna->role !== 'admin') {
-            return redirect()->route('dashboard')
-                ->with('error', 'Akses ditolak!');
-        }
-
         $user = Pengguna::findOrFail($id);
-
-        // if ($user->id == $pengguna->id) {
-        //     return back()->with('error', 'Tidak dapat mengubah role sendiri!');
-        // }
-
         $user->role = $request->role;
         $user->save();
 
@@ -105,12 +87,6 @@ class DashboardController extends Controller
     public function deleteUser($id)
     {
         $pengguna = Pengguna::find(session('pengguna_id'));
-
-        if (!$pengguna || $pengguna->role !== 'admin') {
-            return redirect()->route('dashboard')
-                ->with('error', 'Akses ditolak!');
-        }
-
         $user = Pengguna::findOrFail($id);
 
         if ($user->id == $pengguna->id) {

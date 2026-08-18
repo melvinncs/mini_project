@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
             navLinks.classList.toggle('open');
         });
 
-        // Close mobile menu on link click
         document.querySelectorAll('.navbar-links a').forEach(link => {
             link.addEventListener('click', () => {
                 menuToggle.classList.remove('active');
@@ -32,20 +31,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // smooth scroll
     const navLinksAll = document.querySelectorAll('.nav-link');
-    
+
     navLinksAll.forEach(link => {
         link.addEventListener('click', function(e) {
             const targetId = this.getAttribute('data-target');
-            
-            // Cek apakah target ada di halaman ini
             const targetElement = document.getElementById(targetId);
-            
+
             if (targetElement) {
                 e.preventDefault();
-                
                 const navbarHeight = navbar ? navbar.offsetHeight : 0;
                 const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
-                
+
                 window.scrollTo({
                     top: targetPosition,
                     behavior: 'smooth'
@@ -62,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('scroll', () => {
             let current = '';
             const navbarHeight = navbar ? navbar.offsetHeight : 0;
-            
+
             sections.forEach(section => {
                 const sectionTop = section.offsetTop - navbarHeight - 100;
                 if (window.scrollY >= sectionTop) {
@@ -82,11 +78,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // active nav link current page
     const currentPath = window.location.pathname;
     const navLinksPage = document.querySelectorAll('.navbar-links a:not(.nav-link)');
-    
+
     navLinksPage.forEach(link => {
         const href = link.getAttribute('href');
         if (href && href !== '#' && href !== '') {
-            // Cek apakah link mengarah ke halaman saat ini
             const linkPath = href.split('?')[0].split('#')[0];
             if (linkPath === currentPath) {
                 link.classList.add('active');
@@ -96,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // filter functionallity
+    // Filter functionality untuk dashboard drama
     const filterInputs = document.querySelectorAll('.filter-input');
     const filterSelects = document.querySelectorAll('.filter-select');
     const filterBtns = document.querySelectorAll('.filter-btn');
@@ -106,27 +101,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const wrapper = this.closest('.filter-wrapper');
             const input = wrapper ? wrapper.querySelector('.filter-input') : null;
             const selects = wrapper ? wrapper.querySelectorAll('.filter-select') : [];
-            
+
             const keyword = input ? input.value.toLowerCase() : '';
             const genre = selects.length > 0 ? selects[0].value : '';
             const year = selects.length > 1 ? selects[1].value : '';
-            
-            // Cari card terdekat
+
             const parentGrid = wrapper ? wrapper.nextElementSibling : null;
             if (parentGrid) {
                 const cards = parentGrid.querySelectorAll('.drama-card, .article-card');
                 cards.forEach(card => {
                     let show = true;
-                    
-                    // Filter berdasarkan keyword
+
                     if (keyword) {
                         const title = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
                         if (!title.includes(keyword)) {
                             show = false;
                         }
                     }
-                    
-                    // Filter berdasarkan genre (untuk drama)
+
                     if (genre && card.classList.contains('drama-card')) {
                         const genres = card.querySelectorAll('.genres span');
                         let hasGenre = false;
@@ -135,22 +127,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                         if (!hasGenre) show = false;
                     }
-                    
-                    // Filter berdasarkan tahun
+
                     if (year && card.classList.contains('drama-card')) {
                         const yearElement = card.querySelector('.meta span:first-child');
                         if (yearElement && yearElement.textContent !== year) {
                             show = false;
                         }
                     }
-                    
+
                     card.style.display = show ? '' : 'none';
                 });
             }
         });
     });
 
-    // Filter on enter key
     filterInputs.forEach(input => {
         input.addEventListener('keyup', function(e) {
             if (e.key === 'Enter') {
@@ -165,17 +155,16 @@ document.addEventListener('DOMContentLoaded', function() {
     paginationBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             if (this.classList.contains('active')) return;
-            
+
             const wrapper = this.closest('.pagination-wrapper');
             const allBtns = wrapper ? wrapper.querySelectorAll('.pagination-btn, .pagination-btn-number') : [];
-            
+
             allBtns.forEach(b => {
                 b.classList.remove('active');
             });
-            
+
             this.classList.add('active');
-            
-            // Scroll ke atas section
+
             const section = this.closest('.section');
             if (section) {
                 const navbarHeight = navbar ? navbar.offsetHeight : 0;
@@ -189,14 +178,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     console.log('K-DramaHub script loaded successfully!');
+
+    // NOTE: Fitur cari judul K-Drama (TMDB) di halaman Tambah/Edit Drama
+    // ditangani sepenuhnya oleh script inline di tambahdrama.blade.php,
+    // supaya tidak ada dua handler yang bentrok di elemen #cari_drama.
 });
 
-// Fetch dramas from API
+// ============================================
+// FUNGSI UNTUK HALAMAN PUBLIC DRAMA
+// ============================================
 async function fetchDramas(query = 'korean drama', year = '2026') {
     try {
         const response = await fetch(`/api/dramas?q=${encodeURIComponent(query)}&year=${year}`);
         const data = await response.json();
-        
+
         if (data.success) {
             renderDramas(data.data);
         } else {
@@ -209,11 +204,10 @@ async function fetchDramas(query = 'korean drama', year = '2026') {
     }
 }
 
-// Render dramas to the page
 function renderDramas(dramas) {
     const grid = document.querySelector('.drama-grid');
     if (!grid) return;
-    
+
     if (dramas.length === 0) {
         grid.innerHTML = `
             <div class="empty-state">
@@ -222,17 +216,17 @@ function renderDramas(dramas) {
         `;
         return;
     }
-    
+
     let html = '';
     dramas.forEach(drama => {
-        const badge = drama.rating >= 8.5 ? '🔥 Hot' : 
+        const badge = drama.rating >= 8.5 ? '🔥 Hot' :
                      drama.rating >= 7.5 ? '⭐ Populer' : '📺 Baru';
-        const badgeClass = drama.rating >= 8.5 ? 'badge-hot' : 
+        const badgeClass = drama.rating >= 8.5 ? 'badge-hot' :
                           drama.rating >= 7.5 ? 'badge-populer' : 'badge-new';
-        
+
         html += `
             <div class="drama-card" data-id="${drama.id}">
-                <img class="poster" src="${drama.poster || 'https://via.placeholder.com/300x400?text=No+Image'}" 
+                <img class="poster" src="${drama.poster || 'https://via.placeholder.com/300x400?text=No+Image'}"
                      alt="${drama.title}" loading="lazy">
                 <span class="badge-top ${badgeClass}">${badge}</span>
                 <div class="info">
@@ -249,7 +243,7 @@ function renderDramas(dramas) {
                     </div>
                     <p class="sinopsis">${drama.summary ? drama.summary.substring(0, 150) + '...' : 'No synopsis available'}</p>
                     <div class="pemeran">
-                        ${drama.cast && drama.cast.length > 0 
+                        ${drama.cast && drama.cast.length > 0
                             ? drama.cast.map(actor => `<span>${actor.name}</span>`).join('')
                             : '<span>Cast not available</span>'
                         }
@@ -262,29 +256,27 @@ function renderDramas(dramas) {
             </div>
         `;
     });
-    
+
     grid.innerHTML = html;
     addDramaClickListeners();
 }
 
-// Add click listeners to drama cards
 function addDramaClickListeners() {
     document.querySelectorAll('.drama-card').forEach(card => {
         card.addEventListener('click', function() {
             const id = this.dataset.id;
             if (id) {
-                fetchDramaDetail(id);
+                fetchDramaDetailPublic(id);
             }
         });
     });
 }
 
-// Fetch drama detail
-async function fetchDramaDetail(id) {
+async function fetchDramaDetailPublic(id) {
     try {
         const response = await fetch(`/api/dramas/${id}`);
         const data = await response.json();
-        
+
         if (data.success) {
             showDramaModal(data.data);
         } else {
@@ -295,7 +287,6 @@ async function fetchDramaDetail(id) {
     }
 }
 
-// Show drama detail modal
 function showDramaModal(drama) {
     const modal = document.createElement('div');
     modal.className = 'drama-modal';
@@ -304,7 +295,7 @@ function showDramaModal(drama) {
             <span class="close-btn">&times;</span>
             <div class="modal-body">
                 <div class="modal-poster">
-                    <img src="${drama.poster_large || drama.poster || 'https://via.placeholder.com/300x400?text=No+Image'}" 
+                    <img src="${drama.poster_large || drama.poster || 'https://via.placeholder.com/300x400?text=No+Image'}"
                          alt="${drama.title}">
                 </div>
                 <div class="modal-info">
@@ -325,7 +316,7 @@ function showDramaModal(drama) {
                     <div class="modal-cast">
                         <h4>Pemeran</h4>
                         <div class="cast-grid">
-                            ${drama.cast && drama.cast.length > 0 
+                            ${drama.cast && drama.cast.length > 0
                                 ? drama.cast.map(actor => `
                                     <div class="cast-item">
                                         ${actor.image ? `<img src="${actor.image}" alt="${actor.name}">` : ''}
@@ -347,14 +338,13 @@ function showDramaModal(drama) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
-    // Close modal
+
     modal.querySelector('.close-btn').addEventListener('click', () => {
         modal.remove();
     });
-    
+
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.remove();
@@ -362,7 +352,6 @@ function showDramaModal(drama) {
     });
 }
 
-// Show error message
 function showErrorMessage(message) {
     const grid = document.querySelector('.drama-grid');
     if (grid) {
@@ -375,34 +364,34 @@ function showErrorMessage(message) {
     }
 }
 
-// Filter functionality
+// Load dramas on page load if drama grid exists
 document.addEventListener('DOMContentLoaded', function() {
-    // Load dramas on page load
-    fetchDramas();
-    
-    // Filter button click
+    const dramaGrid = document.querySelector('.drama-grid');
+    if (dramaGrid) {
+        fetchDramas();
+    }
+
+    // Filter functionality for public drama page
     const filterBtn = document.querySelector('.filter-btn');
     const searchInput = document.querySelector('.filter-input');
     const genreSelect = document.querySelector('.filter-select');
     const yearSelect = document.querySelectorAll('.filter-select')[1];
-    
+
     if (filterBtn) {
         filterBtn.addEventListener('click', function() {
             const query = searchInput ? searchInput.value || 'korean drama' : 'korean drama';
             const genre = genreSelect ? genreSelect.value : '';
             const year = yearSelect ? yearSelect.value : '2026';
-            
-            // Build query with genre if selected
+
             let searchQuery = query;
             if (genre) {
                 searchQuery += ` ${genre}`;
             }
-            
+
             fetchDramas(searchQuery, year);
         });
     }
-    
-    // Enter key on search input
+
     if (searchInput) {
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {

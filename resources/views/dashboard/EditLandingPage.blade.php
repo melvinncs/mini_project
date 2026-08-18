@@ -8,7 +8,8 @@
         <h3>Edit Landing Page</h3>
     </div>
     <div class="card-body">
-        <form action="{{ route('dashboard.landing-page.update') }}" method="POST" enctype="multipart/form-data">
+        {{-- Ganti dashboard.landing-page.update menjadi admin.landing-page.update --}}
+        <form action="{{ route('admin.landing-page.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -126,7 +127,8 @@
             </div>
 
             <div class="form-actions">
-                <a href="{{ route('dashboard') }}" class="btn-secondary">Batal</a>
+                {{-- Ganti dashboard menjadi admin.dashboard --}}
+                <a href="{{ route('admin.dashboard') }}" class="btn-secondary">Batal</a>
                 <button type="submit" class="btn-primary">Simpan Perubahan</button>
             </div>
         </form>

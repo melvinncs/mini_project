@@ -8,7 +8,8 @@
         <h3>Edit Drama</h3>
     </div>
     <div class="card-body">
-        <form action="{{ route('dashboard.drama.update', $drama->id) }}" method="POST" enctype="multipart/form-data">
+        {{-- Ganti dashboard.drama.update menjadi admin.drama.update --}}
+        <form action="{{ route('admin.drama.update', $drama->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -99,7 +100,8 @@
             </div>
 
             <div class="form-actions">
-                <a href="{{ route('dashboard.drama') }}" class="btn-secondary">Batal</a>
+                {{-- Ganti dashboard.drama menjadi admin.drama --}}
+                <a href="{{ route('admin.drama') }}" class="btn-secondary">Batal</a>
                 <button type="submit" class="btn-primary">Update Drama</button>
             </div>
         </form>

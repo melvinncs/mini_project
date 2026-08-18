@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Pengguna;
 
 class AuthController extends Controller
@@ -15,26 +16,26 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8',
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        $pengguna = Pengguna::where('email', $request->email)->first();
-
-        if (!$pengguna) {
-            return back()->with('error', 'Email tidak terdaftar!');
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            
+            // Simpan data pengguna ke session
+            $user = Auth::user();
+            session(['pengguna' => $user]);
+            
+            return $user->role === 'admin'
+                ? redirect()->route('admin.dashboard')
+                : redirect()->route('user.dashboard');
         }
 
-        if (!Hash::check($request->password, $pengguna->password)) {
-            return back()->with('error', 'Password salah!');
-        }
-
-        // Simpan sebagai object
-        session(['pengguna' => $pengguna]);
-        session(['pengguna_id' => $pengguna->id]);
-
-        return redirect()->route('dashboard')->with('success', 'Selamat datang kembali, ' . $pengguna->nama . '!');
+        return back()->withErrors([
+            'email' => 'Email atau password salah.',
+        ]);
     }
 
     public function showRegister()
@@ -48,7 +49,6 @@ class AuthController extends Controller
             'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:pengguna,email',
             'password' => 'required|min:8|confirmed',
-            'terms' => 'required',
         ]);
 
         $pengguna = Pengguna::create([
@@ -63,7 +63,10 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        session()->forget(['pengguna', 'pengguna_id']);
-        return redirect()->route('home')->with('success', 'Anda telah logout.');
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home');
     }
 }

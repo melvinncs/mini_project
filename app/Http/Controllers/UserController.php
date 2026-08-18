@@ -59,34 +59,19 @@ class UserController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->route('dashboard.users.index')
+        return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil ditambahkan!');
     }
 
     public function edit($id)
     {
         $user = Pengguna::findOrFail($id);
-        // $pengguna = session('pengguna');
-
-        // $penggunaId = is_array($pengguna) ? $pengguna['id'] : ($pengguna->id ?? null);
-        // if ($user->id === $penggunaId) {
-        //     return redirect()->route('dashboard.users.index')
-        //         ->with('error', 'Anda tidak dapat mengedit akun sendiri!');
-        // }
-
         return view('dashboard.EditUser', compact('user'));
     }
 
     public function update(Request $request, $id)
     {
         $user = Pengguna::findOrFail($id);
-        // $pengguna = session('pengguna');
-
-        // $penggunaId = is_array($pengguna) ? $pengguna['id'] : ($pengguna->id ?? null);
-        // if ($user->id === $penggunaId) {
-        //     return redirect()->route('dashboard.users.index')
-        //         ->with('error', 'Anda tidak dapat mengedit akun sendiri!');
-        // }
 
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
@@ -113,7 +98,7 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('dashboard.users.index')
+        return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil diupdate!');
     }
 
@@ -124,7 +109,8 @@ class UserController extends Controller
 
         $penggunaId = is_array($pengguna) ? $pengguna['id'] : ($pengguna->id ?? null);
         if ($user->id === $penggunaId) {
-            return redirect()->route('dashboard.users.index')
+
+            return redirect()->route('admin.users.index')
                 ->with('error', 'Anda tidak dapat mengubah role sendiri!');
         }
 
@@ -134,7 +120,7 @@ class UserController extends Controller
 
         $user->update(['role' => $request->role]);
 
-        return redirect()->route('dashboard.users.index')
+        return redirect()->route('admin.users.index')
             ->with('success', 'Role user berhasil diubah!');
     }
 
@@ -145,13 +131,14 @@ class UserController extends Controller
 
         $penggunaId = is_array($pengguna) ? $pengguna['id'] : ($pengguna->id ?? null);
         if ($user->id === $penggunaId) {
-            return redirect()->route('dashboard.users.index')
+
+            return redirect()->route('admin.users.index')
                 ->with('error', 'Anda tidak dapat menghapus akun sendiri!');
         }
 
         $user->delete();
 
-        return redirect()->route('dashboard.users.index')
+        return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil dihapus!');
     }
 }

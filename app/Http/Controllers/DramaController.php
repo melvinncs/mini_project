@@ -10,38 +10,19 @@ use Illuminate\Support\Facades\Http;
 
 class DramaController extends Controller
 {
-    private function cekAksesAdmin()
-    {
-        $pengguna = session('pengguna');
-        $role = is_array($pengguna) ? $pengguna['role'] ?? null : $pengguna->role ?? null;
-
-        if ($role !== 'admin') {
-            return redirect()->route('dashboard')
-                ->with('error', 'Anda tidak memiliki akses ke halaman ini!');
-        }
-
-        return null; 
-    }
-
     public function index()
     {
-        if ($redirect = $this->cekAksesAdmin()) return $redirect;
-
         $dramas = Drama::with('pengguna')->orderBy('created_at', 'desc')->paginate(10);
         return view('dashboard.drama', compact('dramas'));
     }
 
     public function create()
     {
-        if ($redirect = $this->cekAksesAdmin()) return $redirect;
-
         return view('dashboard.TambahDrama');
     }
 
     public function store(Request $request)
     {
-        if ($redirect = $this->cekAksesAdmin()) return $redirect;
-
         $validator = Validator::make($request->all(), [
             'judul' => 'required|string|max:255',
             'genre' => 'nullable|string|max:100',
@@ -60,17 +41,14 @@ class DramaController extends Controller
                 ->withInput();
         }
 
-        // Generate slug
         $slug = Str::slug($request->judul);
         $count = Drama::where('slug', 'LIKE', "{$slug}%")->count();
         if ($count > 0) {
             $slug = $slug . '-' . ($count + 1);
         }
 
-        // Upload thumbnail
         $thumbnailPath = null;
 
-        // PASTIKAN DIREKTORI ADA
         $uploadPath = public_path('uploads/drama');
         if (!file_exists($uploadPath)) {
             mkdir($uploadPath, 0755, true);
@@ -81,21 +59,20 @@ class DramaController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/drama'), $filename);
             $thumbnailPath = 'uploads/drama/' . $filename;
-    } elseif ($request->filled('tmdb_poster_url')) {
-        $response = Http::timeout(10)->get($request->tmdb_poster_url);
+        } elseif ($request->filled('tmdb_poster_url')) {
+            $response = Http::timeout(10)->get($request->tmdb_poster_url);
 
-        if ($response->successful() && str_starts_with($response->header('Content-Type'), 'image/')) {
-            $filename = time() . '_tmdb.jpg';
-            file_put_contents(public_path('uploads/drama/' . $filename), $response->body());
-            $thumbnailPath = 'uploads/drama/' . $filename;
+            if ($response->successful() && str_starts_with($response->header('Content-Type'), 'image/')) {
+                $filename = time() . '_tmdb.jpg';
+                file_put_contents(public_path('uploads/drama/' . $filename), $response->body());
+                $thumbnailPath = 'uploads/drama/' . $filename;
+            }
         }
-    }
 
-        // Ambil data pengguna dari session (admin yang login)
         $pengguna = session('pengguna');
         $idPengguna = is_array($pengguna) ? $pengguna['id'] : $pengguna->id;
 
-        $drama = Drama::create([
+        Drama::create([
             'id_pengguna' => $idPengguna,
             'judul' => $request->judul,
             'slug' => $slug,
@@ -110,25 +87,22 @@ class DramaController extends Controller
             'diterbitkan_pada' => now()
         ]);
 
-        return redirect()->route('dashboard.drama')
+        return redirect()->route('admin.drama')
             ->with('success', 'Drama berhasil ditambahkan!');
     }
 
-    // Menampilkan detail drama
     public function show($slug)
     {
         $drama = Drama::with('pengguna')->where('slug', $slug)->firstOrFail();
         return view('dashboard.DetailDrama', compact('drama'));
     }
 
-    // Menampilkan form edit drama
     public function edit($id)
     {
         $drama = Drama::findOrFail($id);
         return view('dashboard.EditDrama', compact('drama'));
     }
 
-    // Mengupdate drama
     public function update(Request $request, $id)
     {
         $drama = Drama::findOrFail($id);
@@ -151,19 +125,16 @@ class DramaController extends Controller
                 ->withInput();
         }
 
-        // pastikan direktori ada
         $uploadPath = public_path('uploads/drama');
         if (!file_exists($uploadPath)) {
             mkdir($uploadPath, 0755, true);
         }
 
-        // Upload thumbnail baru jika ada
         if ($request->hasFile('thumbnail')) {
-            // Hapus thumbnail lama
             if ($drama->thumbnail && file_exists(public_path($drama->thumbnail))) {
                 unlink(public_path($drama->thumbnail));
             }
-            
+
             $file = $request->file('thumbnail');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/drama'), $filename);
@@ -180,33 +151,30 @@ class DramaController extends Controller
         $drama->pemeran_utama = $request->pemeran_utama;
         $drama->save();
 
-        return redirect()->route('dashboard.drama')
+        return redirect()->route('admin.drama')
             ->with('success', 'Drama berhasil diperbarui!');
     }
 
-    // Menghapus drama
     public function destroy($id)
     {
         $drama = Drama::findOrFail($id);
-        
-        // Hapus thumbnail
+
         if ($drama->thumbnail && file_exists(public_path($drama->thumbnail))) {
             unlink(public_path($drama->thumbnail));
         }
 
         $drama->delete();
 
-        return redirect()->route('dashboard.drama')
+        return redirect()->route('admin.drama')
             ->with('success', 'Drama berhasil dihapus!');
     }
 
-    // Mencari drama di TMDB berdasarkan judul
     public function cariDrama(Request $request)
     {
-        $query = $request->get('query');
+        $query = $request->get('q'); 
 
         if (!$query) {
-            return response()->json([]);
+            return response()->json(['success' => false, 'data' => []]);
         }
 
         $response = Http::withToken(config('services.tmdb.token'))
@@ -218,26 +186,27 @@ class DramaController extends Controller
             ]);
 
         if (!$response->successful()) {
-            return response()->json(['error' => 'Gagal mengambil data dari TMDB'], 500);
+            return response()->json(['success' => false, 'data' => [], 'error' => 'Gagal mengambil data dari TMDB'], 500);
         }
 
         $hasil = collect($response->json('results'))
-            // filter supaya hanya drama dengan negara asal Korea Selatan yang muncul
             ->filter(fn ($item) => in_array('KR', $item['origin_country'] ?? []))
             ->map(fn ($item) => [
                 'id' => $item['id'],
-                'judul' => $item['name'],
-                'tahun' => substr($item['first_air_date'] ?? '', 0, 4),
-                'poster' => $item['poster_path']
-                    ? "https://image.tmdb.org/t/p/w200{$item['poster_path']}"
+                'judul' => $item['name'], 
+                'year' => substr($item['first_air_date'] ?? '', 0, 4),
+                'poster' => $item['poster_path'] 
+                    ? "https://image.tmdb.org/t/p/w92{$item['poster_path']}"
                     : null,
             ])
             ->values();
 
-        return response()->json($hasil);
+        return response()->json([
+            'success' => true,
+            'data' => $hasil
+        ]);
     }
 
-    // Mengambil detail lengkap drama yang dipilih
     public function detailDrama($id)
     {
         $response = Http::withToken(config('services.tmdb.token'))
@@ -248,7 +217,7 @@ class DramaController extends Controller
             ]);
 
         if (!$response->successful()) {
-            return response()->json(['error' => 'Gagal mengambil detail drama'], 500);
+            return response()->json(['success' => false, 'data' => null, 'error' => 'Gagal mengambil detail drama'], 500);
         }
 
         $data = $response->json();
@@ -259,16 +228,19 @@ class DramaController extends Controller
             ->implode(', ');
 
         return response()->json([
-            'judul' => $data['name'],
-            'genre' => collect($data['genres'] ?? [])->pluck('name')->implode(', '),
-            'tahun' => substr($data['first_air_date'] ?? '', 0, 4),
-            'episode' => $data['number_of_episodes'] ?? null,
-            'rating' => $data['vote_average'] ? number_format($data['vote_average'], 1) : null,
-            'sinopsis' => $data['overview'],
-            'pemeran_utama' => $pemeran,
-            'poster_url' => $data['poster_path']
-                ? "https://image.tmdb.org/t/p/w500{$data['poster_path']}"
-                : null,
+            'success' => true,
+            'data' => [
+                'judul' => $data['name'], // ← ubah 'title' ke 'judul'
+                'genre' => collect($data['genres'] ?? [])->pluck('name')->implode(', '), // ← ubah ke string
+                'tahun' => substr($data['first_air_date'] ?? '', 0, 4),
+                'episode' => $data['number_of_episodes'] ?? null,
+                'rating' => $data['vote_average'] ? number_format($data['vote_average'], 1) : null,
+                'sinopsis' => $data['overview'],
+                'pemeran_utama' => $pemeran,
+                'poster_url' => $data['poster_path'] // ← ubah 'poster_path' ke 'poster_url'
+                    ? "https://image.tmdb.org/t/p/w500{$data['poster_path']}"
+                    : null,
+            ]
         ]);
     }
 
@@ -286,7 +258,7 @@ class DramaController extends Controller
     {
         $drama = Drama::with('pengguna')->where('slug', $slug)->firstOrFail();
         $dramas = Drama::with('pengguna')->latest()->take(3)->get();
-        
+
         return view('dashboard.DetailDrama', compact('drama', 'dramas'));
     }
 }

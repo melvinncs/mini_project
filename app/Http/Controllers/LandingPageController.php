@@ -8,31 +8,14 @@ use Illuminate\Support\Facades\Validator;
 
 class LandingPageController extends Controller
 {
-    private function cekAksesAdmin()
-    {
-        $pengguna = session('pengguna');
-        $role = is_array($pengguna) ? $pengguna['role'] ?? null : $pengguna->role ?? null;
-
-        if ($role !== 'admin') {
-            return redirect()->route('dashboard')
-                ->with('error', 'Anda tidak memiliki akses ke halaman ini!');
-        }
-
-        return null;
-    }
-
     public function edit()
     {
-        if ($redirect = $this->cekAksesAdmin()) return $redirect;
-
         $landing = LandingPage::current();
         return view('dashboard.EditLandingPage', compact('landing'));
     }
 
     public function update(Request $request)
     {
-        if ($redirect = $this->cekAksesAdmin()) return $redirect;
-
         $validator = Validator::make($request->all(), [
             'hero_badge_1' => 'nullable|string|max:100',
             'hero_badge_2' => 'nullable|string|max:100',
@@ -61,7 +44,6 @@ class LandingPageController extends Controller
 
         $landing = LandingPage::current();
 
-        // Upload hero image kalau ada file baru
         if ($request->hasFile('hero_image')) {
             $uploadPath = public_path('uploads/landing');
             if (!file_exists($uploadPath)) {
@@ -81,7 +63,8 @@ class LandingPageController extends Controller
         $landing->fill($request->except('hero_image'));
         $landing->save();
 
-        return redirect()->route('dashboard.landing-page')
+        // Ganti dashboard.landing-page menjadi admin.landing-page
+        return redirect()->route('admin.landing-page')
             ->with('success', 'Landing page berhasil diperbarui!');
     }
 }

@@ -8,7 +8,8 @@
         <h3>Tambah Akun Baru</h3>
     </div>
     <div class="card-body">
-        <form action="{{ route('dashboard.users.store') }}" method="POST">
+        {{-- Ganti dashboard.users.store menjadi admin.users.store --}}
+        <form action="{{ route('admin.users.store') }}" method="POST">
             @csrf
             <div class="form-group">
                 <label for="nama">Nama Lengkap</label>
@@ -51,7 +52,8 @@
             </div>
 
             <div class="form-actions">
-                <a href="{{ route('dashboard.users.index') }}" class="btn-secondary">Batal</a>
+                {{-- Ganti dashboard.users.index menjadi admin.users.index --}}
+                <a href="{{ route('admin.users.index') }}" class="btn-secondary">Batal</a>
                 <button type="submit" class="btn-primary">Tambah User</button>
             </div>
         </form>

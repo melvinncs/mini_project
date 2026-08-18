@@ -9,7 +9,7 @@
         <h3>Buat Artikel Baru</h3>
     </div>
     <div class="card-body">
-        <form action="{{ route('dashboard.artikel.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('user.artikel.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group">
                 <label for="judul">Judul</label>
@@ -54,7 +54,7 @@
             </div>
 
             <div class="form-actions">
-                <a href="{{ route('dashboard.artikel') }}" class="btn-secondary">Batal</a>
+                <a href="{{ route('user.artikel') }}" class="btn-secondary">Batal</a>
                 <button type="submit" class="btn-primary">Publikasikan</button>
             </div>
         </form>

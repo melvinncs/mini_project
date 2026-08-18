@@ -13,13 +13,8 @@
             $isSelf = $pengguna && $user->id === (is_array($pengguna) ? $pengguna['id'] : $pengguna->id);
         @endphp
 
-        <!-- @if($isSelf)
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Anda sedang mengedit akun sendiri. Role tidak dapat diubah.
-            </div>
-        @endif -->
-
-        <form action="{{ route('dashboard.users.update', $user->id) }}" method="POST">
+        {{-- Ganti dashboard.users.update menjadi admin.users.update --}}
+        <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
             @csrf
             @method('PUT')
             
@@ -70,7 +65,8 @@
             </div>
 
             <div class="form-actions">
-                <a href="{{ route('dashboard.users.index') }}" class="btn-secondary">Batal</a>
+                {{-- Ganti dashboard.users.index menjadi admin.users.index --}}
+                <a href="{{ route('admin.users.index') }}" class="btn-secondary">Batal</a>
                 <button type="submit" class="btn-primary">{{ $isSelf ? 'Update Akun Saya' : 'Update User' }}</button>
             </div>
         </form>

@@ -16,65 +16,63 @@
                 <span>K-DramaHub</span>
             </div>
             
+            @php
+                // Ambil dari session atau Auth
+                $pengguna = session('pengguna') ?? Auth::user();
+                
+                // Helper untuk mendapatkan nilai dari array atau object
+                $getPenggunaValue = function($key) use ($pengguna) {
+                    if (!$pengguna) return null;
+                    if (is_array($pengguna)) {
+                        return $pengguna[$key] ?? null;
+                    }
+                    return $pengguna->$key ?? null;
+                };
+                
+                $role = $getPenggunaValue('role');
+                $nama = $getPenggunaValue('nama') ?? 'User';
+                $isAdmin = $role === 'admin';
+                $dashboardRoute = $isAdmin ? 'admin.dashboard' : 'user.dashboard';
+            @endphp
+            
             <nav class="sidebar-nav">
-                <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <a href="{{ route($dashboardRoute) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute) ? 'active' : '' }}">
                     <i class="fas fa-th-large"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="{{ route('dashboard.artikel') }}" class="sidebar-link {{ request()->routeIs('dashboard.artikel*') ? 'active' : '' }}">
+                <a href="{{ $isAdmin ? route('admin.artikel') : route('user.artikel') }}" 
+                   class="sidebar-link {{ request()->routeIs('admin.artikel*') || request()->routeIs('user.artikel*') ? 'active' : '' }}">
                     <i class="fas fa-newspaper"></i>
                     <span>Artikel</span>
                 </a>
-                @php
-                    $pengguna = session('pengguna');
-                    // Helper untuk mendapatkan nilai dari array atau object
-                    $getPenggunaValue = function($key) use ($pengguna) {
-                        if (!$pengguna) return null;
-                        if (is_array($pengguna)) {
-                            return $pengguna[$key] ?? null;
-                        }
-                        return $pengguna->$key ?? null;
-                    };
-                    $isAdmin = $getPenggunaValue('role') === 'admin';
-                @endphp
-
+                
                 @if($isAdmin)
-                <a href="{{ route('dashboard.drama') }}" class="sidebar-link {{ request()->routeIs('dashboard.drama*') ? 'active' : '' }}">
+                <a href="{{ route('admin.drama') }}" 
+                   class="sidebar-link {{ request()->routeIs('admin.drama*') ? 'active' : '' }}">
                     <i class="fas fa-film"></i>
                     <span>Drama</span>
                 </a>
-                @endif
-                @php
-                    $pengguna = session('pengguna');
-                    // Helper untuk mendapatkan nilai dari array atau object
-                    $getPenggunaValue = function($key) use ($pengguna) {
-                        if (!$pengguna) return null;
-                        if (is_array($pengguna)) {
-                            return $pengguna[$key] ?? null;
-                        }
-                        return $pengguna->$key ?? null;
-                    };
-                    $isAdmin = $getPenggunaValue('role') === 'admin';
-                @endphp
-                @if($isAdmin)
-                <a href="{{ route('dashboard.users.index') }}" class="sidebar-link {{ request()->routeIs('dashboard.users.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.users.index') }}" 
+                   class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="fas fa-users-cog"></i>
                     <span>Manajemen Akun</span>
                 </a>
-                <a href="{{ route('dashboard.landing-page') }}" class="sidebar-link {{ request()->routeIs('dashboard.landing-page') ? 'active' : '' }}">
-                    <i class="fa fa-edit"></i> <span>Landing Page</span>
+                <a href="{{ route('admin.landing-page') }}" 
+                   class="sidebar-link {{ request()->routeIs('admin.landing-page') ? 'active' : '' }}">
+                    <i class="fa fa-edit"></i> 
+                    <span>Landing Page</span>
                 </a>
                 @endif
             </nav>
             
             <div class="sidebar-bottom">
-                <a href="{{ route('logout') }}" class="sidebar-link text-danger">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </a>
-                <!-- <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                     @csrf
-                </form> -->
+                    <button type="submit" class="sidebar-link text-danger" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
             </div>
         </aside>
 
@@ -89,11 +87,6 @@
                     <h2>@yield('title')</h2>
                 </div>
                 <div class="topbar-right">
-                    @php
-                        $pengguna = session('pengguna');
-                        $nama = $pengguna ? (is_array($pengguna) ? $pengguna['nama'] : $pengguna->nama) : 'User';
-                        $role = $pengguna ? (is_array($pengguna) ? $pengguna['role'] : $pengguna->role) : 'user';
-                    @endphp
                     <div class="user-info">
                         <span>{{ $nama }}</span>
                         <span class="badge-role">{{ $role }}</span>
